@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="{{ translations["lang_id"] }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="light dark" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/shared/pico.amber.min.css">
+    <script src="/shared/jquery-3.7.1.min.js"></script>
+    <title>{{ translations["Assistant loading"] }}</title>
+    <style>
+        .loader {
+            height: 60px;
+            box-shadow: 0 3px 0 var(--pico-color);
+            position: relative;
+            clip-path: inset(-40px 0 -5px);
+        }
+
+        .loader:before {
+            content: "";
+            position: absolute;
+            inset: auto calc(50% - 17px) 0;
+            height: 50px;
+            --g: no-repeat linear-gradient(var(--pico-color) 0 0);
+            background: var(--g), var(--g), var(--g), var(--g);
+            background-size: 16px 14px;
+            animation:
+                l7-1 6s infinite linear,
+                l7-2 6s infinite linear;
+        }
+
+        @keyframes l7-1 {
+            0%, 100% {
+                background-position: 0 -0px, 100% -0px;
+            }
+            5.7% {
+                background-position: 0 100%, 100% -200px, 0 -100px, 100% -200px;
+            }
+            11.5% {
+                background-position: 0 100%, 100% 100%, 0 -200px, 100% -200px;
+            }
+            17.3% {
+                background-position: 0 100%, 100% 100%, 0 calc(100% - 16px), 100% -200px;
+            }
+            
+            23.1%, 99% {
+                background-position: 0 100%, 100% 100%, 0 calc(100% - 16px), 100% calc(100% - 16px);
+            }
+        }
+
+        @keyframes l7-2 {
+
+            0%,
+            30% {
+                transform: translate(-600%)
+            }
+
+            100% {
+                transform: translate(600%)
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <article>
+            <header>
+                <div class="container" style="text-align: center;">
+                    <h3>{{ translations["Assistant loading"] }}...</h3>
+                </div>
+            </header>
+            <div class="container" style="text-align: center;">
+                <p>{{ translations["Your assistant will start in a few minutes."] }}</p>
+                <div class="loader"></div>
+            </div>
+            <footer>
+                <details class="dropdown">
+                    <summary role="button" class="secondary outline">{{ translations["Theme"] }}</summary>
+                    <ul>
+                        <li><a href="#" data-theme-switcher="auto">{{ translations["Auto"] }}</a></li>
+                        <li><a href="#" data-theme-switcher="light">{{ translations["Light"] }}</a></li>
+                        <li><a href="#" data-theme-switcher="dark">{{ translations["Dark"] }}</a></li>
+                    </ul>
+                </details>
+            </footer>
+        </article>
+    </main>
+    <script src="/shared/minimal-theme-switcher.js"></script>
+    <script>
+        setInterval(() => {
+            fetch("/phase").then(response => response.text()).then(data => {
+                if (data !== "Starting")
+                    window.location.reload()
+            })
+        }, 1000)
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,30 @@
+{
+    "name": "Open Application",
+    "version": "0.1a",
+    "settings": {
+    },
+    "translations": {
+        "english": {
+            "Open Application": "Open Application",
+            "Couldn't find PowerShell, rolling back to Command line": "Couldn't find PowerShell, rolling back to Command line",
+            "open": "open",
+            "start": "start",
+            "terminal": "terminal",
+            "console": "console",
+            "shell": "shell",
+            "browser": "browser",
+            "internet": "internet"
+        },
+        "russian": {
+            "Open Application": "Открыть Приложение",
+            "Couldn't find PowerShell, rolling back to Command line": "Не могу найти PowerShell, откатываюсь к командной строке",
+            "open": "открой",
+            "start": "запусти",
+            "terminal": "терминал",
+            "console": "консоль",
+            "shell": "оболочка",
+            "browser": "браузер",
+            "internet": "интернет"
+        }
+    }
+}

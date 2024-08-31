@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="{{ translations["lang_id"] }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="light dark" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/shared/pico.amber.min.css">
+    <link rel="stylesheet" href="/shared/side-stack.css">
+    <script src="/shared/jquery-3.7.1.min.js"></script>
+    <title>{{ translations["Assistant Configuration"] }}</title>
+    <style>
+        select {
+            text-transform: capitalize;
+        }
+        #on-off-modules {
+            max-height: 500px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <article>
+            <header>
+                <div class="container">
+                    <h3>{{ translations["Assistant Configuration"] }}</h3>
+                    <small>
+                        <i>{{ translations["Modifiable only before the assistant starts."] }}</i>
+                    </small>
+                </div>
+            </header>
+            <form id="config">
+                <details>
+                    <summary>{{ translations["Interface language"] }}</summary>
+                    <select id="language" name="language"></select>
+                </details>
+                <details open>
+                    <summary>{{ translations["General settings"] }}</summary>
+                    <label for="assistant_name">{{ translations["Assistant name:"] }}</label>
+                    <input type="text" name="assistant_name" id="assistant_name">
+                    <label for="assistant_gender">{{ translations["Assistant gender:"] }}</label>
+                    <select id="assistant_gender" name="assistant_gender">
+                        <option value='Female'>{{ translations["Female"] }}</option>
+                        <option value='Male'>{{ translations["Male"] }}</option>
+                    </select>
+                    <label for="assistant_voice_key">{{ translations["Assistant voice key:"] }}</label>
+                    <select id="assistant_voice_key" name="assistant_voice_key"></select>
+                    <label for="assistant_voice_rate">{{ translations["Assistant voice rate:"] }}</label>
+                    <input type="number" name="assistant_voice_rate" id="assistant_voice_rate">
+                    <label for="use_chat">
+                        <input type="checkbox" id="use_chat" name="use_chat" role="switch">
+                        {{ translations["Use GPT chat for generic requests?"] }}
+                    </label>
+                    <label for="intention_best_proba">{{ translations["Intention classifier best probability:"] }}</label>
+                    <input type="number" name="intention_best_proba" step="0.01" max="1" min="0" id="intention_best_proba">
+                </details>
+                <details>
+                    <summary>{{ translations["Vosk Configuration"] }}</summary>
+                    <label for="vosk_model">{{ translations["Vosk model:"] }}</label>
+                    <select id="vosk_model" name="vosk_model"></select>
+                    <label for="vosk_debug">
+                        <input type="checkbox" id="vosk_debug" name="vosk_debug" role="switch">
+                        {{ translations["Vosk debug"] }}
+                    </label>
+                </details>
+                <details>
+                    <summary>{{ translations["GPT Configuration"] }}</summary>
+                    <label for="gpt_model">{{ translations["GPT model:"] }}</label>
+                    <select id="gpt_model" name="gpt_model"></select>
+                    <label for="gpt-info">{{ translations["Information GPT knows about user:"] }}</label>
+                    <textarea name="gpt_info" id="gpt_info"></textarea>
+                </details>
+                <details>
+                    <summary>{{ translations["OpenAI Configuration"] }}</summary>
+                    <fieldset>
+                        <label for="use_openai_gpt">
+                            <input type="checkbox" id="use_openai_gpt" name="use_openai_gpt" role="switch">
+                            {{ translations["Use OpenAI GPT"] }}
+                        </label>
+                        <label for="use_openai_tts">
+                            <input type="checkbox" id="use_openai_tts" name="use_openai_tts" role="switch">
+                            {{ translations["Use OpenAI TTS"] }}
+                        </label>
+                    </fieldset>
+                    <label for="openai_tts_model">{{ translations["OpenAI TTS voice:"] }}</label>
+                    <select id="openai_tts_model" name="openai_tts_model">
+                        <option value='alloy'>Alloy</option>
+                        <option value='echo'>Echo</option>
+                        <option value='fable'>Fable</option>
+                        <option value='onyx'>Onyx</option>
+                        <option value='nova'>Nova</option>
+                        <option value='shimmer'>Shimmer</option>
+                    </select>
+                    <article id="openai_key_invalid" style="display: none;">
+                        <div>
+                            <svg viewBox="0 0 24 24" style="width:3em;margin-right:1em" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M2.20164 18.4695L10.1643 4.00506C10.9021 2.66498 13.0979 2.66498 13.8357 4.00506L21.7984 18.4695C22.4443 19.6428 21.4598 21 19.9627 21H4.0373C2.54022 21 1.55571 19.6428 2.20164 18.4695Z"
+                                    stroke="#F00000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M12 9V13" stroke="#F00000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M12 17.0195V17" stroke="#F00000" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            {{ translations["The OpenAI key was not found or is invalid."] }}
+                        </div>
+                    </article>
+                    <article id="openai_no_connection" style="display: none;">
+                        <div>
+                            <svg viewBox="0 0 24 24" style="width:3em;margin-right:1em" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M2.20164 18.4695L10.1643 4.00506C10.9021 2.66498 13.0979 2.66498 13.8357 4.00506L21.7984 18.4695C22.4443 19.6428 21.4598 21 19.9627 21H4.0373C2.54022 21 1.55571 19.6428 2.20164 18.4695Z"
+                                    stroke="#F00000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M12 9V13" stroke="#F00000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M12 17.0195V17" stroke="#F00000" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            {{ translations["The OpenAI services are unavaliable."] }}
+                        </div>
+                    </article>
+                </details>
+                <details>
+                    <summary>{{ translations["Modules configuration"] }}</summary>
+                    <fieldset id="on-off-modules">
+                    </fieldset>
+                </details>
+            </form>
+            <footer>
+                <div class="grid">
+                    <button type="button" class="outline" onclick="send_config()">{{ translations["Save configuration"]
+                        }}</button>
+                    <button type="button" class="secondary outline" data-target="modal-reset"
+                        onclick="toggleModal(event)" id="button_ask_reset_ai">{{ translations["Reset AI"]
+                        }}</button>
+                    <button type="button" id="button_run_ai" onclick="run_ai()" data-tooltip="{{ translations["This action will also save the configuration."] }}">{{ translations["Run AI"] }}</button>
+                </div>
+                <details class="dropdown">
+                    <summary role="button" class="secondary outline">{{ translations["Theme"] }}</summary>
+                    <ul>
+                        <li><a href="#" data-theme-switcher="auto">{{ translations["Auto"] }}</a></li>
+                        <li><a href="#" data-theme-switcher="light">{{ translations["Light"] }}</a></li>
+                        <li><a href="#" data-theme-switcher="dark">{{ translations["Dark"] }}</a></li>
+                    </ul>
+                </details>
+            </footer>
+        </article>
+    </main>
+    <dialog id="modal-reset">
+        <article>
+            <header>
+                <button aria-label="Close" rel="prev" data-target="modal-reset" onclick="toggleModal(event)"></button>
+                <h3>{{ translations["Confirm your action!"] }}</h3>
+            </header>
+            <p>
+                {{ translations["Are you sure you want to reset the AI assistant?"] }}
+                {{ translations["This action will remove all the information the assistant knows about you and reset the configuration to the default values."] }}
+                {{ translations["If you only want to remove the data the assistant knows, but keep the configuration, you can command '<assistant name> forget all'."] }}
+            </p>
+            <button type="button" class="secondary outline" data-target="modal-reset"
+                onclick="reset_ai(); toggleModal(event)" id="button_do_reset_ai">{{ translations["Reset AI"] }}</button>
+            <button type="button" autofocus data-target="modal-reset" onclick="toggleModal(event)"
+                id="button_cancel_reset">{{ translations["Cancel"] }}</button>
+        </article>
+    </dialog>
+    <script src="/shared/minimal-theme-switcher.js"></script>
+    <script src="/shared/modal.js"></script>
+    <script src="/shared/side-stack.js"></script>
+    <script src="/shared/config.js"></script>
+</body>
+
+</html>

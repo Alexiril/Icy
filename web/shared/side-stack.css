@@ -1,0 +1,25 @@
+.left-side {
+    left: 10px;
+}
+
+.right-side {
+    right: 10px;
+}
+
+.top-side {
+    top: 10px;
+}
+
+.bottom-side {
+    bottom: 10px;
+}
+
+.side-stack {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0.5em;
+    z-index: 1000;
+    pointer-events:none
+}

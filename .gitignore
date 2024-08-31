@@ -1,0 +1,5 @@
+.venv
+.vscode
+.models
+__pycache__/
+prev.data
