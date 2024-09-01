@@ -26,7 +26,7 @@ class MessageWindow(Thread):
     def terminate(self) -> None:
         self.root.quit()
 
-    def popup(self, event: Event[Misc]) -> None:
+    def popup(self, event: "Event[Misc]") -> None:
         try:
             self.popup_menu.tk_popup(event.x_root, event.y_root, 0)
         finally:
