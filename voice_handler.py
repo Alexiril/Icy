@@ -22,7 +22,6 @@ from vosk import KaldiRecognizer, Model
 # Too hard to make typings stubs.
 from sounddevice import RawInputStream, query_devices  # type: ignore
 
-from exceptions import StopRecording
 from message_window import MessageWindow
 from settings import OpenAITTSVoice
 from translations import translations
@@ -86,7 +85,7 @@ class VoiceHandler:
             text = text.replace("*", "").replace("#", "")
             pattern = re_compile(r"^```(?:.+)\n([\s\S]*?)```$", MULTILINE)
             while (match := search(pattern, text)) is not None:
-                text = text[: match.start(0)] + text[match.end(0) :]
+                text = text[: match.start(0)] + text[match.end(0):]
             return text
 
         def offline_tts():
@@ -238,3 +237,7 @@ class VoiceHandler:
                 return
             except Exception:
                 print_traceback()
+
+
+class StopRecording(Exception):
+    ...
