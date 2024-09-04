@@ -13,7 +13,7 @@ from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from termcolor import colored
 
 from assistant_function import AssistantFunction
-from exceptions import StopRecording
+from voice_handler import StopRecording
 from settings import Gender
 from translations import translations
 
