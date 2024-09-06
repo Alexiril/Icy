@@ -40,6 +40,9 @@ class VoiceHandler:
     use_openai_tts: bool
     speak_worker: SimpleNamespace
 
+    class StopRecording(Exception):
+        ...
+
     def __init__(
         self,
         vosk_model: str,
@@ -231,13 +234,9 @@ class VoiceHandler:
                             result: str = loads(recognizer.PartialResult())["partial"]
                             if result != "":
                                 print(colored(result, "grey"))
-            except StopRecording:
+            except VoiceHandler.StopRecording:
                 return
             except KeyboardInterrupt:
                 return
             except Exception:
                 print_traceback()
-
-
-class StopRecording(Exception):
-    ...
