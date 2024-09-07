@@ -64,5 +64,6 @@ def main() -> None:
             print(JSONEncoder(ensure_ascii=False).encode(new_translation), file=file)
         print(colored("done", "green"))
 
+
 if __name__ == "__main__":
     main()

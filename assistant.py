@@ -13,7 +13,7 @@ from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from termcolor import colored
 
 from assistant_function import AssistantFunction
-from exceptions import StopRecording
+from voice_handler import VoiceHandler
 from settings import Gender
 from translations import translations
 
@@ -196,7 +196,7 @@ class Assistant:
             config["gpt_info"] = general_data
             with open("prev.data", "wt") as file:
                 print(JSONEncoder().encode(config), file=file)
-        raise StopRecording()
+        raise VoiceHandler.StopRecording()
 
     def task_start_discussion(self, state: "AppState", *args: Any) -> None:
         if not self.use_chat:
@@ -252,8 +252,7 @@ class Assistant:
                             if system_prompt is None
                             else system_prompt
                         )
-                        + f'{translations["You know that:"]
-                             if len(self.gpt_info) != 0 else ""} {self.gpt_info}'
+                        + f'{translations["You know that:"] if len(self.gpt_info) != 0 else ""} {self.gpt_info}'
                         if add_gpt_info
                         else ""
                     ),
