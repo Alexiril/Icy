@@ -31,6 +31,11 @@ if TYPE_CHECKING:
 
 
 class VoiceHandler:
+
+    class StopRecording(Exception):
+        ...
+
+
     tts_engine: TTSEngine
     model: Model
     recording_queue: Queue[bytes]
@@ -39,9 +44,6 @@ class VoiceHandler:
     openai_tts_model: OpenAITTSVoice
     use_openai_tts: bool
     speak_worker: SimpleNamespace
-
-    class StopRecording(Exception):
-        ...
 
     def __init__(
         self,
