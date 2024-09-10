@@ -1,5 +1,6 @@
 from typing import Any, Literal
 
+# Yeah, there probably will be more...
 Gender = Literal["Female", "Male"]
 
 # Automatic translation builder purposes only
@@ -7,9 +8,13 @@ Gender = Literal["Female", "Male"]
 # translations["Male"]
 
 OpenAITTSVoice = Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+"""Voices which are avaliable for use with OpenAI TTS API."""
 
 
 class Settings:
+    """Class Settings contains all the properties used in the assistant.
+    Also, it's being used to pass the parameters from the configuration
+    web page to the bot."""
     language: str = "english"
     assistant_name: str = "Assistant"
     assistant_gender: Gender = "Female"

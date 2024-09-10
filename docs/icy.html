@@ -147,7 +147,7 @@ parsing, and general bot initializing code.</p>
 </span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="n">calculated_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AppState</span><span class="p">:</span>
 </span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">    Initializes the bot using the configuration dictionary (it should contain only keys</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">    presented in the `Setting` class instances as attirbutes).</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">    presented in the [`Setting`](settings.html) class instances as attirbutes).</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="sd">    Also, reloads the translations (a chanse for a user to change the languages before</span>
 </span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">    the bot actually starts.)</span>
@@ -215,20 +215,31 @@ parsing, and general bot initializing code.</p>
 </span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>
 </span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>
 </span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a><span class="k">def</span> <span class="nf">start</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
-</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>    <span class="n">parse_args</span><span class="p">()</span>
-</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>    <span class="n">calculated_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>    <span class="n">server</span> <span class="o">=</span> <span class="n">WebServer</span><span class="p">(</span><span class="n">translations</span><span class="o">=</span><span class="n">translations</span><span class="p">,</span> <span class="n">result_config</span><span class="o">=</span><span class="n">calculated_config</span><span class="p">)</span>
-</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>    <span class="n">web_server_thread</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">)</span>
-</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>    <span class="n">web_server_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>    <span class="k">with</span> <span class="n">server</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
-</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>        <span class="nb">print</span><span class="p">(</span><span class="n">colored</span><span class="p">(</span><span class="s2">&quot;Configuration successfully set.&quot;</span><span class="p">,</span> <span class="s2">&quot;light_magenta&quot;</span><span class="p">))</span>
-</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>
-</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>    <span class="n">state</span><span class="p">:</span> <span class="n">AppState</span> <span class="o">=</span> <span class="n">init</span><span class="p">(</span><span class="n">calculated_config</span><span class="o">=</span><span class="n">calculated_config</span><span class="p">)</span>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>    <span class="nb">setattr</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">RequestHandlerClass</span><span class="p">,</span> <span class="s2">&quot;server_phase&quot;</span><span class="p">,</span> <span class="s2">&quot;Runtime&quot;</span><span class="p">)</span>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>    <span class="n">state</span><span class="o">.</span><span class="n">voice_handler</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
-</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>    <span class="n">server</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
-</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>    <span class="n">web_server_thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
-</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a><span class="sd">    The entry point for Icy assistant. Starts, initializes, runs and shutdowns the</span>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a><span class="sd">    execution of the bot.</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>
+</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a><span class="sd">    *Raises*: Nothing itself, also doesn&#39;t handle any exception.</span>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>    <span class="n">parse_args</span><span class="p">()</span>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>    <span class="n">calculated_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>    <span class="n">server</span> <span class="o">=</span> <span class="n">WebServer</span><span class="p">(</span><span class="n">translations</span><span class="o">=</span><span class="n">translations</span><span class="p">,</span> <span class="n">result_config</span><span class="o">=</span><span class="n">calculated_config</span><span class="p">)</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>    <span class="n">web_server_thread</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">)</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>    <span class="n">web_server_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>    <span class="c1"># Locks the execution of initialization until a user unlocks it via button in the</span>
+</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>    <span class="c1"># configuration web page (weird solution, I know).</span>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>    <span class="k">with</span> <span class="n">server</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>        <span class="nb">print</span><span class="p">(</span><span class="n">colored</span><span class="p">(</span><span class="s2">&quot;Configuration successfully set.&quot;</span><span class="p">,</span> <span class="s2">&quot;light_magenta&quot;</span><span class="p">))</span>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>
+</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>    <span class="n">state</span><span class="p">:</span> <span class="n">AppState</span> <span class="o">=</span> <span class="n">init</span><span class="p">(</span><span class="n">calculated_config</span><span class="o">=</span><span class="n">calculated_config</span><span class="p">)</span>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>    <span class="nb">setattr</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">RequestHandlerClass</span><span class="p">,</span> <span class="s2">&quot;server_phase&quot;</span><span class="p">,</span> <span class="s2">&quot;Runtime&quot;</span><span class="p">)</span>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>    <span class="n">state</span><span class="o">.</span><span class="n">voice_handler</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>
+</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>    <span class="c1"># When recording ends, the program (including the web server) should terminate.</span>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>    <span class="n">server</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>    <span class="n">web_server_thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -317,7 +328,7 @@ web site (and in the bot's commands, if won't be overwritten).</li>
             <div class="pdoc-code codehilite"><pre><span></span><span id="init-74"><a href="#init-74"><span class="linenos"> 74</span></a><span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="n">calculated_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AppState</span><span class="p">:</span>
 </span><span id="init-75"><a href="#init-75"><span class="linenos"> 75</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="init-76"><a href="#init-76"><span class="linenos"> 76</span></a><span class="sd">    Initializes the bot using the configuration dictionary (it should contain only keys</span>
-</span><span id="init-77"><a href="#init-77"><span class="linenos"> 77</span></a><span class="sd">    presented in the `Setting` class instances as attirbutes).</span>
+</span><span id="init-77"><a href="#init-77"><span class="linenos"> 77</span></a><span class="sd">    presented in the [`Setting`](settings.html) class instances as attirbutes).</span>
 </span><span id="init-78"><a href="#init-78"><span class="linenos"> 78</span></a>
 </span><span id="init-79"><a href="#init-79"><span class="linenos"> 79</span></a><span class="sd">    Also, reloads the translations (a chanse for a user to change the languages before</span>
 </span><span id="init-80"><a href="#init-80"><span class="linenos"> 80</span></a><span class="sd">    the bot actually starts.)</span>
@@ -386,7 +397,7 @@ web site (and in the bot's commands, if won't be overwritten).</li>
 
 
             <div class="docstring"><p>Initializes the bot using the configuration dictionary (it should contain only keys
-presented in the <code>Setting</code> class instances as attirbutes).</p>
+presented in the <a href="settings.html"><code>Setting</code></a> class instances as attirbutes).</p>
 
 <p>Also, reloads the translations (a chanse for a user to change the languages before
 the bot actually starts.)</p>
@@ -411,24 +422,40 @@ the bot actually starts.)</p>
     </div>
     <a class="headerlink" href="#start"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="start-144"><a href="#start-144"><span class="linenos">144</span></a><span class="k">def</span> <span class="nf">start</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
-</span><span id="start-145"><a href="#start-145"><span class="linenos">145</span></a>    <span class="n">parse_args</span><span class="p">()</span>
-</span><span id="start-146"><a href="#start-146"><span class="linenos">146</span></a>    <span class="n">calculated_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="start-147"><a href="#start-147"><span class="linenos">147</span></a>    <span class="n">server</span> <span class="o">=</span> <span class="n">WebServer</span><span class="p">(</span><span class="n">translations</span><span class="o">=</span><span class="n">translations</span><span class="p">,</span> <span class="n">result_config</span><span class="o">=</span><span class="n">calculated_config</span><span class="p">)</span>
-</span><span id="start-148"><a href="#start-148"><span class="linenos">148</span></a>    <span class="n">web_server_thread</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">)</span>
-</span><span id="start-149"><a href="#start-149"><span class="linenos">149</span></a>    <span class="n">web_server_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-</span><span id="start-150"><a href="#start-150"><span class="linenos">150</span></a>    <span class="k">with</span> <span class="n">server</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
-</span><span id="start-151"><a href="#start-151"><span class="linenos">151</span></a>        <span class="nb">print</span><span class="p">(</span><span class="n">colored</span><span class="p">(</span><span class="s2">&quot;Configuration successfully set.&quot;</span><span class="p">,</span> <span class="s2">&quot;light_magenta&quot;</span><span class="p">))</span>
-</span><span id="start-152"><a href="#start-152"><span class="linenos">152</span></a>
-</span><span id="start-153"><a href="#start-153"><span class="linenos">153</span></a>    <span class="n">state</span><span class="p">:</span> <span class="n">AppState</span> <span class="o">=</span> <span class="n">init</span><span class="p">(</span><span class="n">calculated_config</span><span class="o">=</span><span class="n">calculated_config</span><span class="p">)</span>
-</span><span id="start-154"><a href="#start-154"><span class="linenos">154</span></a>    <span class="nb">setattr</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">RequestHandlerClass</span><span class="p">,</span> <span class="s2">&quot;server_phase&quot;</span><span class="p">,</span> <span class="s2">&quot;Runtime&quot;</span><span class="p">)</span>
-</span><span id="start-155"><a href="#start-155"><span class="linenos">155</span></a>    <span class="n">state</span><span class="o">.</span><span class="n">voice_handler</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
-</span><span id="start-156"><a href="#start-156"><span class="linenos">156</span></a>    <span class="n">server</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
-</span><span id="start-157"><a href="#start-157"><span class="linenos">157</span></a>    <span class="n">web_server_thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
-</span><span id="start-158"><a href="#start-158"><span class="linenos">158</span></a>    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="start-145"><a href="#start-145"><span class="linenos">145</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="start-146"><a href="#start-146"><span class="linenos">146</span></a><span class="sd">    The entry point for Icy assistant. Starts, initializes, runs and shutdowns the</span>
+</span><span id="start-147"><a href="#start-147"><span class="linenos">147</span></a><span class="sd">    execution of the bot.</span>
+</span><span id="start-148"><a href="#start-148"><span class="linenos">148</span></a>
+</span><span id="start-149"><a href="#start-149"><span class="linenos">149</span></a><span class="sd">    *Raises*: Nothing itself, also doesn&#39;t handle any exception.</span>
+</span><span id="start-150"><a href="#start-150"><span class="linenos">150</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="start-151"><a href="#start-151"><span class="linenos">151</span></a>    <span class="n">parse_args</span><span class="p">()</span>
+</span><span id="start-152"><a href="#start-152"><span class="linenos">152</span></a>    <span class="n">calculated_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="start-153"><a href="#start-153"><span class="linenos">153</span></a>    <span class="n">server</span> <span class="o">=</span> <span class="n">WebServer</span><span class="p">(</span><span class="n">translations</span><span class="o">=</span><span class="n">translations</span><span class="p">,</span> <span class="n">result_config</span><span class="o">=</span><span class="n">calculated_config</span><span class="p">)</span>
+</span><span id="start-154"><a href="#start-154"><span class="linenos">154</span></a>    <span class="n">web_server_thread</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">)</span>
+</span><span id="start-155"><a href="#start-155"><span class="linenos">155</span></a>    <span class="n">web_server_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span><span id="start-156"><a href="#start-156"><span class="linenos">156</span></a>
+</span><span id="start-157"><a href="#start-157"><span class="linenos">157</span></a>    <span class="c1"># Locks the execution of initialization until a user unlocks it via button in the</span>
+</span><span id="start-158"><a href="#start-158"><span class="linenos">158</span></a>    <span class="c1"># configuration web page (weird solution, I know).</span>
+</span><span id="start-159"><a href="#start-159"><span class="linenos">159</span></a>    <span class="k">with</span> <span class="n">server</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+</span><span id="start-160"><a href="#start-160"><span class="linenos">160</span></a>        <span class="nb">print</span><span class="p">(</span><span class="n">colored</span><span class="p">(</span><span class="s2">&quot;Configuration successfully set.&quot;</span><span class="p">,</span> <span class="s2">&quot;light_magenta&quot;</span><span class="p">))</span>
+</span><span id="start-161"><a href="#start-161"><span class="linenos">161</span></a>
+</span><span id="start-162"><a href="#start-162"><span class="linenos">162</span></a>    <span class="n">state</span><span class="p">:</span> <span class="n">AppState</span> <span class="o">=</span> <span class="n">init</span><span class="p">(</span><span class="n">calculated_config</span><span class="o">=</span><span class="n">calculated_config</span><span class="p">)</span>
+</span><span id="start-163"><a href="#start-163"><span class="linenos">163</span></a>    <span class="nb">setattr</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">RequestHandlerClass</span><span class="p">,</span> <span class="s2">&quot;server_phase&quot;</span><span class="p">,</span> <span class="s2">&quot;Runtime&quot;</span><span class="p">)</span>
+</span><span id="start-164"><a href="#start-164"><span class="linenos">164</span></a>    <span class="n">state</span><span class="o">.</span><span class="n">voice_handler</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+</span><span id="start-165"><a href="#start-165"><span class="linenos">165</span></a>
+</span><span id="start-166"><a href="#start-166"><span class="linenos">166</span></a>    <span class="c1"># When recording ends, the program (including the web server) should terminate.</span>
+</span><span id="start-167"><a href="#start-167"><span class="linenos">167</span></a>    <span class="n">server</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</span><span id="start-168"><a href="#start-168"><span class="linenos">168</span></a>    <span class="n">web_server_thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</span><span id="start-169"><a href="#start-169"><span class="linenos">169</span></a>    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </span></pre></div>
 
 
-    
+            <div class="docstring"><p>The entry point for Icy assistant. Starts, initializes, runs and shutdowns the
+execution of the bot.</p>
+
+<p><em>Raises</em>: Nothing itself, also doesn't handle any exception.</p>
+</div>
+
 
                 </section>
     </main>
