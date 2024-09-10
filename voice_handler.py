@@ -31,10 +31,7 @@ if TYPE_CHECKING:
 
 
 class VoiceHandler:
-
-    class StopRecording(Exception):
-        ...
-
+    class StopRecording(Exception): ...
 
     tts_engine: TTSEngine
     model: Model
@@ -90,7 +87,7 @@ class VoiceHandler:
             text = text.replace("*", "").replace("#", "")
             pattern = re_compile(r"^```(?:.+)\n([\s\S]*?)```$", MULTILINE)
             while (match := search(pattern, text)) is not None:
-                text = text[: match.start(0)] + text[match.end(0):]
+                text = text[: match.start(0)] + text[match.end(0) :]
             return text
 
         def offline_tts():
