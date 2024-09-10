@@ -32,6 +32,8 @@ class Settings:
     intention_best_proba: float = 0.5
 
     def __init__(self, calculated_config: dict[str, Any]) -> None:
+        """Takes dictionary containing the pairs key/value with same keys as the
+        attributes in the `Setting` class."""
         for attr in dir(self):
             if attr[0] == "_":
                 continue
