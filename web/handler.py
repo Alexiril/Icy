@@ -8,6 +8,8 @@ from socketserver import BaseServer
 from threading import Lock
 from typing import Any, Literal
 
+# Don't have stubs for gpt4all
+from gpt4all import GPT4All  # type: ignore
 from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
 from openai import AuthenticationError, OpenAI
 from pyttsx3.engine import Engine as TTSEngine
@@ -97,11 +99,13 @@ class Handler(BaseHTTPRequestHandler):
             self.output = JSONEncoder().encode(voices).encode()
             self.send_headers()
         elif self.path == "/gpt-models":
+            # TODO: Fix gpt4all models
             files: list[str] = [
                 file_name
                 for file_name in listdir(".models")
                 if isfile(f".models/{file_name}") and file_name.split(".")[-1] == "gguf"
             ]
+            files.extend([x['name'] for x in GPT4All.list_models()])  # type: ignore
             self.output = JSONEncoder().encode(files).encode()
             self.send_headers()
         elif self.path == "/avaliable-modules":
