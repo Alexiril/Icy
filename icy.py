@@ -10,7 +10,9 @@ parsing, and general bot initializing code.
 from argparse import ArgumentParser, Namespace
 from importlib import import_module
 from json import loads
-from os.path import exists, join, isfile
+from os import mkdir
+from os.path import exists, isdir, isfile
+from pathlib import Path
 from sys import argv
 from threading import Thread
 from typing import Any, NoReturn
@@ -50,15 +52,16 @@ def parse_args() -> None:
         required=False,
     )
     args: Namespace = parser.parse_args(argv[1:])
-    if exists("prev.data") and isfile("prev.data"):
-        with open("prev.data", "rb") as file:
+    prev_data_file = Path(".") / "prev.data"
+    if exists(prev_data_file) and isfile(prev_data_file):
+        with open(prev_data_file, "rb") as file:
             prev_data: dict[str, Any] = loads(file.read())
             if args.language == "auto":
                 args.language = prev_data.get("language", "english")
     else:
         if args.language == "auto":
             args.language = "english"
-    if not exists(f"languages/{args.language}.json"):
+    if not exists(Path(".") / "languages" / f"{args.language}.json"):
         print(
             colored(
                 f"Translation to language {args.language} "
@@ -66,7 +69,7 @@ def parse_args() -> None:
                 "red",
             )
         )
-    with open(f"languages/{args.language}.json") as file:
+    with open(Path(".") / "languages" / f"{args.language}.json") as file:
         translations.update(loads(file.read()))
 
 
@@ -76,16 +79,19 @@ def init(calculated_config: dict[str, Any]) -> AppState:
     presented in the [`Setting`](settings.html) class instances as attirbutes).
 
     Also, reloads the translations (a chanse for a user to change the languages before
-    the bot actually starts.)
+    the bot actually starts) and checks if .models folder exists.
 
     Returns the [`AppState`](appstate.html) instance ready to run the bot.
 
     *Raises*: Doesn't raise any exceptions itself. Handles all the instances of
     `Exception` while attempting to initialize the additional modules.
     """
+    models_dir = Path(".") / ".models"
+    if not exists(models_dir) or not isdir(models_dir):
+        mkdir(models_dir)
     state = AppState()
     state.settings = Settings(calculated_config)
-    if not exists(f"languages/{state.settings.language}.json"):
+    if not exists(Path(".") / "languages" / f"{state.settings.language}.json"):
         print(
             colored(
                 f"Translation to language {state.settings.language}"
@@ -93,13 +99,15 @@ def init(calculated_config: dict[str, Any]) -> AppState:
                 "red",
             )
         )
-    with open(f"languages/{state.settings.language}.json") as file:
+    with open(Path(".") / "languages" / f"{state.settings.language}.json") as file:
         translations.update(loads(file.read()))
     print(colored(translations["Initialization..."], "light_green"))
     print(colored(translations["Assistant initialization..."], "light_magenta"))
     external_capabilities: dict[str, AssistantFunction] = {}
     for module, module_state in state.settings.modules_states.items():
-        if not module_state or not exists(join("modules", module, "__init__.py")):
+        if not module_state or not exists(
+            Path(".") / "modules" / module / "__init__.py"
+        ):
             continue
         try:
             runtime_module = import_module(f"modules.{module}")

@@ -2,6 +2,7 @@ from http.server import BaseHTTPRequestHandler
 from json import JSONEncoder, loads
 from os import environ, listdir, remove
 from os.path import exists, isdir, isfile, join
+from pathlib import Path
 from re import search
 from socket import socket
 from socketserver import BaseServer
@@ -70,11 +71,11 @@ class Handler(BaseHTTPRequestHandler):
             ).encode()
             self.send_headers()
         elif (match := search(r"/shared/(.+)", self.path)) is not None:
-            with open(f"web/shared/{match.group(1)}", "rb") as file:
+            with open(Path(".") / "web" / "shared" / f"{match.group(1)}", "rb") as file:
                 self.output = file.read()
             self.send_headers()
         elif self.path == "/favicon.svg":
-            with open("web/favicon.svg", "rb") as file:
+            with open(Path(".") / "web" / "favicon.svg", "rb") as file:
                 self.output = file.read()
             self.send_headers()
         elif self.path == "/languages":
@@ -88,7 +89,7 @@ class Handler(BaseHTTPRequestHandler):
             files: list[str] = [
                 file_name
                 for file_name in listdir(".models")
-                if isdir(f".models/{file_name}") and "vosk" in file_name
+                if isdir(Path(".") / ".models" / f"{file_name}") and "vosk" in file_name
             ]
             self.output = JSONEncoder().encode(files).encode()
             self.send_headers()
@@ -103,9 +104,10 @@ class Handler(BaseHTTPRequestHandler):
             files: list[str] = [
                 file_name
                 for file_name in listdir(".models")
-                if isfile(f".models/{file_name}") and file_name.split(".")[-1] == "gguf"
+                if isfile(Path(".") / ".models" / f"{file_name}")
+                and file_name.split(".")[-1] == "gguf"
             ]
-            files.extend([x['name'] for x in GPT4All.list_models()])  # type: ignore
+            files.extend([x["name"] for x in GPT4All.list_models()])  # type: ignore
             self.output = JSONEncoder().encode(files).encode()
             self.send_headers()
         elif self.path == "/avaliable-modules":
@@ -174,9 +176,7 @@ class Handler(BaseHTTPRequestHandler):
             self.output = JSONEncoder().encode(config).encode()
             self.send_headers()
         elif self.path == "/translations":
-            self.output = (
-                JSONEncoder().encode(Handler.translations.as_dict()).encode()
-            )
+            self.output = JSONEncoder().encode(Handler.translations.as_dict()).encode()
             self.send_headers()
         elif self.path == "/run-ai":
             if Handler.server_phase != "Configuration" or not exists("prev.data"):
@@ -210,7 +210,7 @@ class Handler(BaseHTTPRequestHandler):
                 if (
                     lang := config.get("language", Handler.translations["lang_name"])
                 ) != Handler.translations["lang_name"]:
-                    if not exists(f"languages/{lang}.json"):
+                    if not exists(Path(".") / "languages" / f"{lang}.json"):
                         print(
                             colored(
                                 f"Translation to language {lang} does't exits.",
@@ -218,7 +218,9 @@ class Handler(BaseHTTPRequestHandler):
                             )
                         )
                     else:
-                        with open(f"languages/{lang}.json") as file:
+                        with open(
+                            Path(".") / "languages" / f"{lang}.json", "rt"
+                        ) as file:
                             Handler.translations.update(loads(file.read()))
                 self.output = JSONEncoder().encode({"result": "ok"}).encode()
                 self.send_headers()
