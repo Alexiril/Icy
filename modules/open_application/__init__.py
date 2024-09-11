@@ -5,6 +5,7 @@ from json import loads
 from os import P_NOWAIT
 from os import name as os_name
 from os import spawnv
+from pathlib import Path
 from shutil import which
 from typing import TYPE_CHECKING
 from webbrowser import open as web_open
@@ -19,11 +20,12 @@ if TYPE_CHECKING:
 
 
 class Module(ModuleInterface):
-
     def __init__(self, state: "AppState") -> None:
         super().__init__(state)
 
-        with open("modules/open_application/module.json", "rt") as file:
+        with open(
+            Path(".") / "modules" / "open_application" / "module.json", "rt"
+        ) as file:
             self.module_config = loads(file.read())
 
         self.terminal_options: list[str] = [

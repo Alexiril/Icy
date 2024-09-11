@@ -1,5 +1,6 @@
 from json import JSONEncoder, loads
 from os.path import exists
+from pathlib import Path
 from queue import Queue
 from random import choice
 from traceback import print_exc as print_traceback
@@ -99,7 +100,7 @@ class Assistant:
             value.keys = [f"{self.name.lower()} {phrase}" for phrase in value.keys]
         self.failure = self.assistant_failure
         self.ai_messages = Queue(50)
-        self.gpt_model = GPT4All(model_name=gpt_model, model_path=".models/")
+        self.gpt_model = GPT4All(model_name=gpt_model, model_path=Path(".") / ".models")
         self.current_request = ""
 
     def handle_request(self, state: "AppState", request: str) -> None:
@@ -252,7 +253,9 @@ class Assistant:
                             if system_prompt is None
                             else system_prompt
                         )
-                        + f'{translations["You know that:"] if len(self.gpt_info) != 0 else ""} {self.gpt_info}'
+                        + f'{translations["You know that:"]
+                             if len(self.gpt_info) != 0
+                             else ""} {self.gpt_info}'
                         if add_gpt_info
                         else ""
                     ),

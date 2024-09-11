@@ -1,5 +1,6 @@
 from json import loads
 from os.path import exists
+from pathlib import Path
 from queue import Queue
 from re import MULTILINE, search
 from re import compile as re_compile
@@ -68,7 +69,7 @@ class VoiceHandler:
             raise Exception(f"Couldn't load a voice '{voice_key}' in local TTS.")
         self.tts_engine.setProperty("voice", voice.id)
         self.tts_engine.setProperty("rate", voice_rate)
-        if not exists(f".models/{vosk_model}"):
+        if not exists(Path(".") / ".models" / f"{vosk_model}"):
             print(
                 colored(
                     f'{translations["Please download the model from:"]}\n'
@@ -78,7 +79,7 @@ class VoiceHandler:
                 )
             )
             raise FileNotFoundError("Vosk recognizer model")
-        self.model = Model(f".models/{vosk_model}")
+        self.model = Model((Path(".") / ".models" / f"{vosk_model}").as_uri())
         self.recording_queue = Queue()
         self.recording_lock = Lock()
 
@@ -93,7 +94,7 @@ class VoiceHandler:
         def offline_tts():
             self.tts_engine.save_to_file(
                 remove_unreadable(text),
-                f"{gettempdir()}/assistant_speech.wav",
+                (Path(gettempdir()) / "assistant_speech.wav").as_uri(),
             )
             self.tts_engine.runAndWait()
 
@@ -105,7 +106,7 @@ class VoiceHandler:
                 voice=self.openai_tts_model,
                 input=remove_unreadable(text),
                 response_format="wav",
-            ).write_to_file(f"{gettempdir()}/assistant_speech.wav")
+            ).write_to_file(Path(gettempdir()) / "assistant_speech.wav")
             return
         except APIStatusError:
             print(colored("OpenAI services are unavaliable.", "light_red"))
@@ -118,7 +119,9 @@ class VoiceHandler:
         with self.recording_lock:
             chunk: int = 8000
             audio = PyAudio()
-            with wave_open(f"{gettempdir()}/assistant_speech.wav", "rb") as file:
+            with wave_open(
+                (Path(gettempdir()) / "assistant_speech.wav").as_uri(), "rb"
+            ) as file:
                 stream = audio.open(
                     format=audio.get_format_from_width(file.getsampwidth()),
                     channels=file.getnchannels(),

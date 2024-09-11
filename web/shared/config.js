@@ -111,10 +111,24 @@ function run_ai() {
 function fillSelect(url_to_fetch, select_id) {
     fetch(url_to_fetch).then((response) => response.json()).then((data) => {
         const select = document.getElementById(select_id)
-        data.forEach(lang => {
+        data.forEach(opt => {
             let option = document.createElement('option')
-            option.value = lang
-            option.innerHTML = lang
+            option.value = opt
+            option.innerHTML = opt
+            select.appendChild(option)
+        })
+    })
+}
+function fillGPTSelect() {
+    fetch("/gpt-models").then(response => response.json()).then(data => {
+        const select = document.getElementById("gpt_model")
+        data.forEach(model => {
+            let option = document.createElement('option')
+            option.value = model.filename
+            let inner = model.name
+            if (model.loaded == true)
+                inner += " - (loaded)"
+            option.innerHTML = inner
             select.appendChild(option)
         })
     })
@@ -125,7 +139,7 @@ fetch("/translations").then(response => response.json()).then(data => {
 fillSelect("/languages", "language")
 fillSelect("/voice-keys", "assistant_voice_key")
 fillSelect("/vosk-models", "vosk_model")
-fillSelect("/gpt-models", "gpt_model")
+fillGPTSelect()
 fetch("/avaliable-modules").then(response => response.json()).then(data => {
     const fieldset = $("#on-off-modules")
     for (const [key, value] of Object.entries(data)) {
