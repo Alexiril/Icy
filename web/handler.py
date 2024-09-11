@@ -79,19 +79,19 @@ class Handler(BaseHTTPRequestHandler):
                 self.output = file.read()
             self.send_headers()
         elif self.path == "/languages":
-            files: list[str] = [
+            models: list[str] = [
                 ".".join(file_name.split(".")[:-1])
                 for file_name in listdir("languages")
             ]
-            self.output = JSONEncoder().encode(files).encode()
+            self.output = JSONEncoder().encode(models).encode()
             self.send_headers()
         elif self.path == "/vosk-models":
-            files: list[str] = [
+            models: list[str] = [
                 file_name
                 for file_name in listdir(".models")
                 if isdir(Path(".") / ".models" / f"{file_name}") and "vosk" in file_name
             ]
-            self.output = JSONEncoder().encode(files).encode()
+            self.output = JSONEncoder().encode(models).encode()
             self.send_headers()
         elif self.path == "/voice-keys":
             voices: list[str] = [
@@ -100,15 +100,24 @@ class Handler(BaseHTTPRequestHandler):
             self.output = JSONEncoder().encode(voices).encode()
             self.send_headers()
         elif self.path == "/gpt-models":
-            # TODO: Fix gpt4all models
-            files: list[str] = [
-                file_name
-                for file_name in listdir(".models")
-                if isfile(Path(".") / ".models" / f"{file_name}")
-                and file_name.split(".")[-1] == "gguf"
+            gpt_models: list[dict[str, Any]] = [
+                {"name": x["name"], "filename": x["filename"], "loaded": False}
+                for x in GPT4All.list_models()
             ]
-            files.extend([x["name"] for x in GPT4All.list_models()])  # type: ignore
-            self.output = JSONEncoder().encode(files).encode()
+            models_ggufs: list[str] = [x["filename"] for x in gpt_models]
+            for file in listdir(Path(".") / ".models"):
+                if not isfile(Path('.') / ".models" / file):
+                    continue
+                if file not in models_ggufs:
+                    gpt_models.append(
+                        {"name": file.removesuffix(".gguf"), "filename": file, "loaded": True}
+                    )
+                else:
+                    for each in gpt_models:
+                        if each["filename"] == file:
+                            each["loaded"] = True
+            gpt_models.sort(key=lambda x: 0 if x["loaded"] else 1)
+            self.output = JSONEncoder().encode(gpt_models).encode()
             self.send_headers()
         elif self.path == "/avaliable-modules":
 
