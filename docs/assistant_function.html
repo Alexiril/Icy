@@ -75,29 +75,38 @@
                     <h1 class="modulename">
 assistant_function    </h1>
 
-                
+                        <div class="docstring"><p>This module contains an AssistantFunction class. An Assistant instance uses
+it to store and execute functions, the assistant is able to run.</p>
+</div>
+
                         <input id="mod-assistant_function-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 
                         <label class="view-source-button" for="mod-assistant_function-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>    <span class="kn">from</span> <span class="nn">appstate</span> <span class="kn">import</span> <span class="n">AppState</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">&quot;&quot;&quot;This module contains an AssistantFunction class. An Assistant instance uses</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">it to store and execute functions, the assistant is able to run.&quot;&quot;&quot;</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="k">class</span> <span class="nc">AssistantFunction</span><span class="p">:</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>    <span class="kn">from</span> <span class="nn">appstate</span> <span class="kn">import</span> <span class="n">AppState</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>    <span class="k">class</span> <span class="nc">StateFunction</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="s2">&quot;AppState&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>    <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>    <span class="n">reaction</span><span class="p">:</span> <span class="n">StateFunction</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">StateFunction</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">reaction</span> <span class="o">=</span> <span class="n">reaction</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="k">class</span> <span class="nc">AssistantFunction</span><span class="p">:</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Contains keyphrases which should be said by a user to run the reaction</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">    (any callable).&quot;&quot;&quot;</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>    <span class="k">class</span> <span class="nc">StateFunction</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Protocol for all reactions in assistant functions.&quot;&quot;&quot;</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="s2">&quot;AppState&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="n">reaction</span><span class="p">:</span> <span class="n">StateFunction</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">StateFunction</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">reaction</span> <span class="o">=</span> <span class="n">reaction</span>
 </span></pre></div>
 
 
@@ -113,22 +122,28 @@ assistant_function    </h1>
 
     </div>
     <a class="headerlink" href="#AssistantFunction"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AssistantFunction-8"><a href="#AssistantFunction-8"><span class="linenos"> 8</span></a><span class="k">class</span> <span class="nc">AssistantFunction</span><span class="p">:</span>
-</span><span id="AssistantFunction-9"><a href="#AssistantFunction-9"><span class="linenos"> 9</span></a>
-</span><span id="AssistantFunction-10"><a href="#AssistantFunction-10"><span class="linenos">10</span></a>    <span class="k">class</span> <span class="nc">StateFunction</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-</span><span id="AssistantFunction-11"><a href="#AssistantFunction-11"><span class="linenos">11</span></a>
-</span><span id="AssistantFunction-12"><a href="#AssistantFunction-12"><span class="linenos">12</span></a>        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="s2">&quot;AppState&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
-</span><span id="AssistantFunction-13"><a href="#AssistantFunction-13"><span class="linenos">13</span></a>
-</span><span id="AssistantFunction-14"><a href="#AssistantFunction-14"><span class="linenos">14</span></a>    <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="AssistantFunction-15"><a href="#AssistantFunction-15"><span class="linenos">15</span></a>    <span class="n">reaction</span><span class="p">:</span> <span class="n">StateFunction</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="AssistantFunction-16"><a href="#AssistantFunction-16"><span class="linenos">16</span></a>
-</span><span id="AssistantFunction-17"><a href="#AssistantFunction-17"><span class="linenos">17</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">StateFunction</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="AssistantFunction-18"><a href="#AssistantFunction-18"><span class="linenos">18</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span>
-</span><span id="AssistantFunction-19"><a href="#AssistantFunction-19"><span class="linenos">19</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">reaction</span> <span class="o">=</span> <span class="n">reaction</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AssistantFunction-11"><a href="#AssistantFunction-11"><span class="linenos">11</span></a><span class="k">class</span> <span class="nc">AssistantFunction</span><span class="p">:</span>
+</span><span id="AssistantFunction-12"><a href="#AssistantFunction-12"><span class="linenos">12</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Contains keyphrases which should be said by a user to run the reaction</span>
+</span><span id="AssistantFunction-13"><a href="#AssistantFunction-13"><span class="linenos">13</span></a><span class="sd">    (any callable).&quot;&quot;&quot;</span>
+</span><span id="AssistantFunction-14"><a href="#AssistantFunction-14"><span class="linenos">14</span></a>
+</span><span id="AssistantFunction-15"><a href="#AssistantFunction-15"><span class="linenos">15</span></a>    <span class="k">class</span> <span class="nc">StateFunction</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+</span><span id="AssistantFunction-16"><a href="#AssistantFunction-16"><span class="linenos">16</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Protocol for all reactions in assistant functions.&quot;&quot;&quot;</span>
+</span><span id="AssistantFunction-17"><a href="#AssistantFunction-17"><span class="linenos">17</span></a>
+</span><span id="AssistantFunction-18"><a href="#AssistantFunction-18"><span class="linenos">18</span></a>        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="s2">&quot;AppState&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+</span><span id="AssistantFunction-19"><a href="#AssistantFunction-19"><span class="linenos">19</span></a>
+</span><span id="AssistantFunction-20"><a href="#AssistantFunction-20"><span class="linenos">20</span></a>    <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="AssistantFunction-21"><a href="#AssistantFunction-21"><span class="linenos">21</span></a>    <span class="n">reaction</span><span class="p">:</span> <span class="n">StateFunction</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="AssistantFunction-22"><a href="#AssistantFunction-22"><span class="linenos">22</span></a>
+</span><span id="AssistantFunction-23"><a href="#AssistantFunction-23"><span class="linenos">23</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">StateFunction</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="AssistantFunction-24"><a href="#AssistantFunction-24"><span class="linenos">24</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span>
+</span><span id="AssistantFunction-25"><a href="#AssistantFunction-25"><span class="linenos">25</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">reaction</span> <span class="o">=</span> <span class="n">reaction</span>
 </span></pre></div>
 
 
-    
+            <div class="docstring"><p>Contains keyphrases which should be said by a user to run the reaction
+(any callable).</p>
+</div>
+
 
                             <div id="AssistantFunction.__init__" class="classattr">
                                         <input id="AssistantFunction.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -140,9 +155,9 @@ assistant_function    </h1>
 
     </div>
     <a class="headerlink" href="#AssistantFunction.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AssistantFunction.__init__-17"><a href="#AssistantFunction.__init__-17"><span class="linenos">17</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">StateFunction</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="AssistantFunction.__init__-18"><a href="#AssistantFunction.__init__-18"><span class="linenos">18</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span>
-</span><span id="AssistantFunction.__init__-19"><a href="#AssistantFunction.__init__-19"><span class="linenos">19</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">reaction</span> <span class="o">=</span> <span class="n">reaction</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AssistantFunction.__init__-23"><a href="#AssistantFunction.__init__-23"><span class="linenos">23</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">reaction</span><span class="p">:</span> <span class="n">StateFunction</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="AssistantFunction.__init__-24"><a href="#AssistantFunction.__init__-24"><span class="linenos">24</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span>
+</span><span id="AssistantFunction.__init__-25"><a href="#AssistantFunction.__init__-25"><span class="linenos">25</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">reaction</span> <span class="o">=</span> <span class="n">reaction</span>
 </span></pre></div>
 
 
@@ -185,45 +200,14 @@ assistant_function    </h1>
 
     </div>
     <a class="headerlink" href="#AssistantFunction.StateFunction"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AssistantFunction.StateFunction-10"><a href="#AssistantFunction.StateFunction-10"><span class="linenos">10</span></a>    <span class="k">class</span> <span class="nc">StateFunction</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-</span><span id="AssistantFunction.StateFunction-11"><a href="#AssistantFunction.StateFunction-11"><span class="linenos">11</span></a>
-</span><span id="AssistantFunction.StateFunction-12"><a href="#AssistantFunction.StateFunction-12"><span class="linenos">12</span></a>        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="s2">&quot;AppState&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AssistantFunction.StateFunction-15"><a href="#AssistantFunction.StateFunction-15"><span class="linenos">15</span></a>    <span class="k">class</span> <span class="nc">StateFunction</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+</span><span id="AssistantFunction.StateFunction-16"><a href="#AssistantFunction.StateFunction-16"><span class="linenos">16</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Protocol for all reactions in assistant functions.&quot;&quot;&quot;</span>
+</span><span id="AssistantFunction.StateFunction-17"><a href="#AssistantFunction.StateFunction-17"><span class="linenos">17</span></a>
+</span><span id="AssistantFunction.StateFunction-18"><a href="#AssistantFunction.StateFunction-18"><span class="linenos">18</span></a>        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="s2">&quot;AppState&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Base class for protocol classes.</p>
-
-<p>Protocol classes are defined as::</p>
-
-<pre><code>class Proto(Protocol):
-    def meth(self) -&gt; int:
-        ...
-</code></pre>
-
-<p>Such classes are primarily used with static type checkers that recognize
-structural subtyping (static duck-typing).</p>
-
-<p>For example::</p>
-
-<pre><code>class C:
-    def meth(self) -&gt; int:
-        return 0
-
-def func(x: Proto) -&gt; int:
-    return x.meth()
-
-func(C())  # Passes static type check
-</code></pre>
-
-<p>See PEP 544 for details. Protocol classes decorated with
-@typing.runtime_checkable act as simple-minded runtime protocols that check
-only the presence of given attributes, ignoring their type signatures.
-Protocol classes can be generic, they are defined as::</p>
-
-<pre><code>class GenProto[T](Protocol):
-    def meth(self) -&gt; T:
-        ...
-</code></pre>
+            <div class="docstring"><p>Protocol for all reactions in assistant functions.</p>
 </div>
 
 

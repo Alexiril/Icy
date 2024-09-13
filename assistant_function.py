@@ -1,3 +1,6 @@
+"""This module contains an AssistantFunction class. An Assistant instance uses
+it to store and execute functions, the assistant is able to run."""
+
 from typing import Any, Protocol, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -5,8 +8,11 @@ if TYPE_CHECKING:
 
 
 class AssistantFunction:
+    """Contains keyphrases which should be said by a user to run the reaction
+    (any callable)."""
 
     class StateFunction(Protocol):
+        """Protocol for all reactions in assistant functions."""
 
         def __call__(self, state: "AppState", *args: Any, **kwds: Any) -> None: ...
 

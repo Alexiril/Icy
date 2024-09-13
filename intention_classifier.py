@@ -1,3 +1,6 @@
+"""This module contains the intention classifier class, to be used by an assistant
+instance to better recognize a command."""
+
 from typing import TYPE_CHECKING
 
 from sklearn.feature_extraction.text import TfidfVectorizer

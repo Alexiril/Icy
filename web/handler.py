@@ -106,11 +106,15 @@ class Handler(BaseHTTPRequestHandler):
             ]
             models_ggufs: list[str] = [x["filename"] for x in gpt_models]
             for file in listdir(Path(".") / ".models"):
-                if not isfile(Path('.') / ".models" / file):
+                if not isfile(Path(".") / ".models" / file):
                     continue
                 if file not in models_ggufs:
                     gpt_models.append(
-                        {"name": file.removesuffix(".gguf"), "filename": file, "loaded": True}
+                        {
+                            "name": file.removesuffix(".gguf"),
+                            "filename": file,
+                            "loaded": True,
+                        }
                     )
                 else:
                     for each in gpt_models:
