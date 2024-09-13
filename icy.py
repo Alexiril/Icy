@@ -13,7 +13,7 @@ from json import loads
 from os import mkdir
 from os.path import exists, isdir, isfile
 from pathlib import Path
-from sys import argv
+from sys import argv, exception
 from threading import Thread
 from typing import Any, NoReturn
 
@@ -54,13 +54,18 @@ def parse_args() -> None:
     args: Namespace = parser.parse_args(argv[1:])
     prev_data_file = Path(".") / "prev.data"
     if exists(prev_data_file) and isfile(prev_data_file):
-        with open(prev_data_file, "rb") as file:
-            prev_data: dict[str, Any] = loads(file.read())
+        try:
+            with open(prev_data_file, "rb") as file:
+                prev_data: dict[str, Any] = loads(file.read())
+                if args.language == "auto":
+                    args.language = prev_data.get("language", "english")
+        except:  # noqa: E722
             if args.language == "auto":
-                args.language = prev_data.get("language", "english")
+                args.language = "english"
     else:
         if args.language == "auto":
             args.language = "english"
+
     if not exists(Path(".") / "languages" / f"{args.language}.json"):
         print(
             colored(

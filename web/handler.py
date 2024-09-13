@@ -8,6 +8,7 @@ from socket import socket
 from socketserver import BaseServer
 from threading import Lock
 from typing import Any, Literal
+from traceback import print_exc as print_traceback
 
 # Don't have stubs for gpt4all
 from gpt4all import GPT4All  # type: ignore
@@ -106,11 +107,15 @@ class Handler(BaseHTTPRequestHandler):
             ]
             models_ggufs: list[str] = [x["filename"] for x in gpt_models]
             for file in listdir(Path(".") / ".models"):
-                if not isfile(Path('.') / ".models" / file):
+                if not isfile(Path(".") / ".models" / file):
                     continue
                 if file not in models_ggufs:
                     gpt_models.append(
-                        {"name": file.removesuffix(".gguf"), "filename": file, "loaded": True}
+                        {
+                            "name": file.removesuffix(".gguf"),
+                            "filename": file,
+                            "loaded": True,
+                        }
                     )
                 else:
                     for each in gpt_models:
@@ -163,11 +168,15 @@ class Handler(BaseHTTPRequestHandler):
                 "intention_best_proba": 0.5,
             }
             if exists("prev.data"):
-                with open("prev.data", "rt") as file:
-                    prev_data: dict[str, Any] = loads(file.read())
-                config.update(
-                    (key, prev_data[key]) for key in config.keys() & prev_data.keys()
-                )
+                try:
+                    with open("prev.data", "rt") as file:
+                        prev_data: dict[str, Any] = loads(file.read())
+                    config.update(
+                        (key, prev_data[key])
+                        for key in config.keys() & prev_data.keys()
+                    )
+                except Exception:
+                    print_traceback()
             openai_token_exists = "OPENAI_API_KEY" in environ
             if openai_token_exists:
                 try:
@@ -190,12 +199,15 @@ class Handler(BaseHTTPRequestHandler):
         elif self.path == "/run-ai":
             if Handler.server_phase != "Configuration" or not exists("prev.data"):
                 self.send_redirect("/")
-            Handler.server_phase = "Starting"
-            with open("prev.data") as file:
-                config: dict[str, Any] = loads(file.read())
-            Handler.result_config.update(config)
-            Handler.config_lock.release()
-            self.send_redirect("/")
+            try:
+                Handler.server_phase = "Starting"
+                with open("prev.data") as file:
+                    config: dict[str, Any] = loads(file.read())
+                Handler.result_config.update(config)
+                Handler.config_lock.release()
+                self.send_redirect("/")
+            except:  # noqa: E722
+                self.send_headers(404)
         elif self.path == "/phase":
             self.output = self.server_phase.encode()
             self.send_headers()
