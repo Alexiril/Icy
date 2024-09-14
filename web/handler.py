@@ -199,15 +199,15 @@ class Handler(BaseHTTPRequestHandler):
         elif self.path == "/run-ai":
             if Handler.server_phase != "Configuration" or not exists("prev.data"):
                 self.send_redirect("/")
-                Handler.server_phase = "Starting"
-                try:
-                    with open("prev.data") as file:
-                        config = loads(file.read())
-                except (OSError, JSONDecodeError):
-                    config = {}
-                Handler.result_config.update(config)
-                Handler.config_lock.release()
-                self.send_redirect("/")
+            Handler.server_phase = "Starting"
+            try:
+                with open("prev.data") as file:
+                    config = loads(file.read())
+            except (OSError, JSONDecodeError):
+                config = {}
+            Handler.result_config.update(config)
+            Handler.config_lock.release()
+            self.send_redirect("/")
         elif self.path == "/phase":
             self.output = self.server_phase.encode()
             self.send_headers()

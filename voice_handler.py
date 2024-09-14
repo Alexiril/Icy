@@ -79,7 +79,7 @@ class VoiceHandler:
                 )
             )
             raise FileNotFoundError("Vosk recognizer model")
-        self.model = Model((Path(".") / ".models" / f"{vosk_model}").as_uri())
+        self.model = Model(str(Path(".") / ".models" / f"{vosk_model}"))
         self.recording_queue = Queue()
         self.recording_lock = Lock()
 
@@ -94,7 +94,7 @@ class VoiceHandler:
         def offline_tts():
             self.tts_engine.save_to_file(
                 remove_unreadable(text),
-                (Path(gettempdir()) / "assistant_speech.wav").as_uri(),
+                (Path(gettempdir()) / "assistant_speech.wav").as_posix(),
             )
             self.tts_engine.runAndWait()
 
@@ -120,7 +120,7 @@ class VoiceHandler:
             chunk: int = 8000
             audio = PyAudio()
             with wave_open(
-                (Path(gettempdir()) / "assistant_speech.wav").as_uri(), "rb"
+                (Path(gettempdir()) / "assistant_speech.wav").as_posix(), "rb"
             ) as file:
                 stream = audio.open(
                     format=audio.get_format_from_width(file.getsampwidth()),
