@@ -9,7 +9,7 @@ parsing, and general bot initializing code.
 
 from argparse import ArgumentParser, Namespace
 from importlib import import_module
-from json import loads
+from json import JSONDecodeError, loads
 from os import mkdir
 from os.path import exists, isdir, isfile
 from pathlib import Path
@@ -53,14 +53,22 @@ def parse_args() -> None:
     )
     args: Namespace = parser.parse_args(argv[1:])
     prev_data_file = Path(".") / "prev.data"
-    if exists(prev_data_file) and isfile(prev_data_file):
-        with open(prev_data_file, "rb") as file:
-            prev_data: dict[str, Any] = loads(file.read())
-            if args.language == "auto":
-                args.language = prev_data.get("language", "english")
-    else:
+
+    def set_default_language() -> None:
         if args.language == "auto":
             args.language = "english"
+
+    if exists(prev_data_file) and isfile(prev_data_file):
+        try:
+            with open(prev_data_file, "rb") as file:
+                prev_data: dict[str, Any] = loads(file.read())
+                if args.language == "auto":
+                    args.language = prev_data.get("language", "english")
+        except (OSError, JSONDecodeError):
+            set_default_language()
+    else:
+        set_default_language()
+
     if not exists(Path(".") / "languages" / f"{args.language}.json"):
         print(
             colored(

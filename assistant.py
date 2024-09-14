@@ -1,4 +1,4 @@
-from json import JSONEncoder, loads
+from json import JSONDecodeError, JSONEncoder, loads
 from os.path import exists
 from pathlib import Path
 from queue import Queue
@@ -191,12 +191,14 @@ class Assistant:
                         break
                 general_data += chunk
             config: dict[str, Any] = {}
-            if exists("prev.data"):
-                with open("prev.data", "rt") as file:
-                    config.update(loads(file.read()))
-            config["gpt_info"] = general_data
-            with open("prev.data", "wt") as file:
-                print(JSONEncoder().encode(config), file=file)
+            try:
+                if exists("prev.data"):
+                    with open("prev.data", "rt") as file:
+                        config.update(loads(file.read()))
+            except (OSError, JSONDecodeError):
+                config["gpt_info"] = general_data
+                with open("prev.data", "wt") as file:
+                    print(JSONEncoder().encode(config), file=file)
         raise VoiceHandler.StopRecording()
 
     def task_start_discussion(self, state: "AppState", *args: Any) -> None:
