@@ -13,7 +13,7 @@ from json import JSONDecodeError, loads
 from os import mkdir
 from os.path import exists, isdir, isfile
 from pathlib import Path
-from sys import argv, exception
+from sys import argv
 from threading import Thread
 from typing import Any, NoReturn
 
