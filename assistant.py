@@ -1,4 +1,4 @@
-from json import JSONEncoder, loads
+from json import JSONDecodeError, JSONEncoder, loads
 from os.path import exists
 from pathlib import Path
 from queue import Queue
@@ -195,7 +195,7 @@ class Assistant:
                 if exists("prev.data"):
                     with open("prev.data", "rt") as file:
                         config.update(loads(file.read()))
-            except:  # noqa: E722
+            except (OSError, JSONDecodeError):
                 config["gpt_info"] = general_data
                 with open("prev.data", "wt") as file:
                     print(JSONEncoder().encode(config), file=file)

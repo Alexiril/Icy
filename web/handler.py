@@ -1,5 +1,5 @@
 from http.server import BaseHTTPRequestHandler
-from json import JSONEncoder, loads
+from json import JSONDecodeError, JSONEncoder, loads
 from os import environ, listdir, remove
 from os.path import exists, isdir, isfile, join
 from pathlib import Path
@@ -175,7 +175,7 @@ class Handler(BaseHTTPRequestHandler):
                         (key, prev_data[key])
                         for key in config.keys() & prev_data.keys()
                     )
-                except Exception:
+                except (OSError, JSONDecodeError):
                     print_traceback()
             openai_token_exists = "OPENAI_API_KEY" in environ
             if openai_token_exists:
@@ -206,7 +206,7 @@ class Handler(BaseHTTPRequestHandler):
                 Handler.result_config.update(config)
                 Handler.config_lock.release()
                 self.send_redirect("/")
-            except:  # noqa: E722
+            except (OSError, JSONDecodeError):
                 self.send_headers(404)
         elif self.path == "/phase":
             self.output = self.server_phase.encode()
@@ -224,7 +224,7 @@ class Handler(BaseHTTPRequestHandler):
                 config: dict[str, Any] = loads(data.decode())
                 if exists("prev.data"):
                     with open("prev.data", "r") as file:
-                        config: dict[str, Any] = loads(file.read())
+                        config = loads(file.read())
                     config.update(loads(data.decode()))
                 with open("prev.data", "w") as file:
                     file.write(JSONEncoder().encode(loads(data.decode())))
