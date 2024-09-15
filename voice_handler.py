@@ -1,7 +1,5 @@
 from json import loads
 from os.path import exists
-from shutil import move
-from os import listdir
 from pathlib import Path
 from queue import Queue
 from re import MULTILINE, search
@@ -21,7 +19,6 @@ from pyttsx3 import init as pyttsx3_init
 from pyttsx3.voice import Voice
 from termcolor import colored
 from vosk import KaldiRecognizer, Model
-from requests import get
 
 
 # Too hard to make typings stubs.
@@ -246,15 +243,3 @@ class VoiceHandler:
                 return
             except Exception:
                 print_traceback()
-
-    def vosk_model_downloader(model_name) -> None:
-        Model(model_name=model_name)
-        move(Path.home() / f".cache/vosk/{model_name}", Path(".") / ".models")
-
-    def show_downloaded_models() -> str:
-        models = ""
-        response = get("https://alphacephei.com/vosk/models/model-list.json", timeout=10)
-        for model in response.json():
-            if model["name"] in listdir(Path(".") / ".models"):
-                models += model["name"] + "\n"
-        return models
