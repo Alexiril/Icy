@@ -255,9 +255,7 @@ class Assistant:
                             if system_prompt is None
                             else system_prompt
                         )
-                        + f'{translations["You know that:"]
-                             if len(self.gpt_info) != 0
-                             else ""} {self.gpt_info}'
+                        + f'{translations["You know that:"] if len(self.gpt_info) != 0 else ""} {self.gpt_info}'  
                         if add_gpt_info
                         else ""
                     ),

@@ -76,8 +76,11 @@ class Handler(BaseHTTPRequestHandler):
                 self.output = file.read()
             self.send_headers()
         elif self.path == "/favicon.svg":
-            with open(Path(".") / "web" / "favicon.svg", "rb") as file:
-                self.output = file.read()
+            try:
+                with open("web/favicon.svg", "rb") as file:
+                    self.output = file.read()
+            except Exception:
+                pass
             self.send_headers()
         elif self.path == "/languages":
             models: list[str] = [
