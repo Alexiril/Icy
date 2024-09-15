@@ -20,7 +20,6 @@ from pyttsx3.voice import Voice
 from termcolor import colored
 from vosk import KaldiRecognizer, Model
 
-
 # Too hard to make typings stubs.
 from sounddevice import RawInputStream, query_devices  # type: ignore
 
