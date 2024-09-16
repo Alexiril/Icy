@@ -2,10 +2,10 @@
 
 from typing import Any, TYPE_CHECKING
 
-from classes.StatePhase import StatePhase
+from src.StatePhase import StatePhase
 
 if TYPE_CHECKING:
-    from classes.Node import Node
+    from src.Node import Node
 
 
 class State(dict[str, Any]):

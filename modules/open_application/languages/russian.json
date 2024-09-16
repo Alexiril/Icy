@@ -1,0 +1,11 @@
+{
+    "Open Application": "Открыть Приложение",
+    "Couldn't find PowerShell, rolling back to Command line": "Не могу найти PowerShell, откатываюсь к командной строке",
+    "open": "открой",
+    "start": "запусти",
+    "terminal": "терминал",
+    "console": "консоль",
+    "shell": "оболочка",
+    "browser": "браузер",
+    "internet": "интернет"
+}

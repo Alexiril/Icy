@@ -13,7 +13,7 @@ from webbrowser import open as web_open
 from termcolor import colored
 
 from assistant_function import AssistantFunction
-from module_interface import ModuleInterface
+from src.ModuleInterface import ModuleInterface
 
 if TYPE_CHECKING:
     from appstate import AppState
