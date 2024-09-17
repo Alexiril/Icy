@@ -20,7 +20,9 @@ class PrevDataReader(Node):
             try:
                 with open(prev_data_file, "rb") as file:
                     settings = loads(file.read())
-            except (OSError, JSONDecodeError):
-                pass
-        state["settings"] = settings
+            except (OSError, JSONDecodeError) as e:
+                self.log_error(e)
+        if "settings" not in state:
+            state["settings"] = {}
+        state["settings"].update(settings)
         return

@@ -4,6 +4,9 @@ from src.Functions import (
     load_language,
     get_modules_list,
     get_modules_info,
+    load_module,
+    load_modules,
+    load_interface,
 )
 from src.Node import Node
 from src.State import State
@@ -15,6 +18,9 @@ __all__: list[str] = [
     "load_language",
     "get_modules_list",
     "get_modules_info",
+    "load_module",
+    "load_modules",
+    "load_interface",
     "Node",
     "State",
     "StatePhase",
