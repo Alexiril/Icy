@@ -13,7 +13,7 @@ from openai.types.chat import ChatCompletionMessageParam
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from termcolor import colored
 
-from assistant_function import AssistantFunction
+from src.AssistantAction import AssistantAction
 from voice_handler import VoiceHandler
 from settings import Gender
 from translations import translations
@@ -26,7 +26,7 @@ class Assistant:
     name: str = ""
     gender: Gender = "Female"
     voice_key: str = ""
-    capabilities: dict[str, AssistantFunction] = {}
+    capabilities: dict[str, AssistantAction] = {}
     failure: Callable[["AppState"], None] | None = None
     gpt_model: GPT4All
     ai_messages: Queue[ChatCompletionMessageParam]
@@ -43,7 +43,7 @@ class Assistant:
         gpt_model: str,
         use_chat: bool,
         gpt_info: str,
-        external_capabilities: dict[str, AssistantFunction] = {},
+        external_capabilities: dict[str, AssistantAction] = {},
     ) -> None:
         self.name = name
         self.gender = gender
@@ -52,7 +52,7 @@ class Assistant:
         self.use_chat = use_chat
         self.gpt_info = gpt_info
         self.capabilities = {
-            "bye": AssistantFunction(
+            "bye": AssistantAction(
                 [
                     translations["full exit"],
                     translations["full stop"],
@@ -60,7 +60,7 @@ class Assistant:
                 ],
                 self.task_bye,
             ),
-            "activate": AssistantFunction(
+            "activate": AssistantAction(
                 [
                     translations["are you here"],
                     translations["hey"],
@@ -69,7 +69,7 @@ class Assistant:
                 ],
                 self.task_activate,
             ),
-            "start_chat": AssistantFunction(
+            "start_chat": AssistantAction(
                 [
                     translations["let's chat"],
                     translations["listen to me"],
@@ -77,7 +77,7 @@ class Assistant:
                 ],
                 self.task_start_discussion,
             ),
-            "stop_chat": AssistantFunction(
+            "stop_chat": AssistantAction(
                 [
                     translations["stop chat"],
                     translations["stop listening"],
@@ -85,7 +85,7 @@ class Assistant:
                 ],
                 self.task_stop_discussion,
             ),
-            "forget_chat": AssistantFunction(
+            "forget_chat": AssistantAction(
                 [
                     translations["forget our chat"],
                     translations["forget the dialogue"],
@@ -116,7 +116,7 @@ class Assistant:
             task = "activate"
             if (
                 function := self.capabilities.get(
-                    "activate", AssistantFunction([], None)
+                    "activate", AssistantAction([], None)
                 ).reaction
             ) is not None:
                 function(state)

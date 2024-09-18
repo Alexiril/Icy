@@ -14,7 +14,6 @@ from termcolor import colored
 from src.ExternalModule import ExternalModule
 from src.Interfaces import BasicInterface
 from src.State import State
-from src.Node import Node
 
 
 def get_languages_list() -> set[str]:
@@ -68,14 +67,9 @@ def load_module(name: str, config: dict[str, Any]) -> ExternalModule | None:
     if not (Path(".") / "modules" / name / "__init__.py").is_file():
         return
     try:
-        runtime_module = import_module(f"modules.{name}")
-        if not hasattr(runtime_module, "Module") or not issubclass(
-            runtime_module.Module, Node
-        ):
-            return
         return ExternalModule(
             config,
-            runtime_module,
+            import_module(f"modules.{name}"),
         )
     except Exception as e:
         print_exc()

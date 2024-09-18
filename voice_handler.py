@@ -80,7 +80,7 @@ class VoiceHandler:
             )
             raise FileNotFoundError("Vosk recognizer model")
         self.model = Model(str(Path(".") / ".models" / f"{vosk_model}"))
-        self.recording_queue = Queue()
+        self.recording_queue = Queue(6 * 5)
         self.recording_lock = Lock()
 
     def generate_speech(self, text: str) -> None:

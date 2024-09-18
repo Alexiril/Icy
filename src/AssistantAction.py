@@ -1,14 +1,15 @@
-from typing import Any, Protocol, TYPE_CHECKING
+""""""
 
-if TYPE_CHECKING:
-    from appstate import AppState
+from typing import Any, Protocol
 
+from src.State import State
 
-class AssistantFunction:
+class AssistantAction:
+    """"""
 
     class StateFunction(Protocol):
 
-        def __call__(self, state: "AppState", *args: Any, **kwds: Any) -> None: ...
+        def __call__(self, state: State, *args: Any, **kwds: Any) -> None: ...
 
     keys: list[str] = []
     reaction: StateFunction | None = None
