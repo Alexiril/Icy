@@ -7,22 +7,22 @@ from os import name as os_name
 from os import spawnv
 from pathlib import Path
 from shutil import which
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from webbrowser import open as web_open
 
 from termcolor import colored
 
 from src.AssistantAction import AssistantAction
-from src.ModuleInterface import ModuleInterface
+from src.Interfaces.ModuleInterface import ModuleInterface
 
 if TYPE_CHECKING:
     from appstate import AppState
 
 
 class Module(ModuleInterface):
-    def __init__(self, state: "AppState") -> None:
-        super().__init__(state)
-
+    def __init__(
+        self, module_name: str, module_version: str, module_info: dict[str, Any]
+    ) -> None:
         with open(
             Path(".") / "modules" / "open_application" / "module.json", "rt"
         ) as file:

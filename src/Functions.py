@@ -5,14 +5,12 @@ from inspect import isclass
 from json import JSONDecodeError, loads
 from os import listdir
 from pathlib import Path
-from traceback import print_exc
 from types import ModuleType
 from typing import Any
 
 from termcolor import colored
 
-from src.ExternalModule import ExternalModule
-from src.Interfaces import BasicInterface
+from src.Interfaces import BasicInterface, ModuleInterface
 from src.State import State
 
 
@@ -63,22 +61,29 @@ def get_modules_info() -> dict[str, dict[str, Any]]:
     return result
 
 
-def load_module(name: str, config: dict[str, Any]) -> ExternalModule | None:
+def load_module(name: str, config: dict[str, Any]) -> ModuleInterface | None:
     if not (Path(".") / "modules" / name / "__init__.py").is_file():
         return
-    try:
-        return ExternalModule(
-            config,
-            import_module(f"modules.{name}"),
+    actual_module = import_module(f"modules.{name}")
+    module_name = config.get("name", "Unnamed module")
+    module_version = config.get("version", "No version")
+    if not hasattr(actual_module, "Module") or not issubclass(
+        getattr(actual_module, "Module"), ModuleInterface
+    ):
+        print(
+            colored(
+                f"Loading module '{module_name}' ({module_version}) "
+                "failure: no module found.",
+                "light_red",
+            )
         )
-    except Exception as e:
-        print_exc()
-        print(colored(f"Loading module failure: {e}", "light_red"))
         return
+    result = getattr(actual_module, "Module")(config)
+    return result
 
 
-def load_modules(accepted_modules: set[str]) -> list[ExternalModule]:
-    result: list[ExternalModule] = []
+def load_modules(accepted_modules: set[str]) -> list[ModuleInterface]:
+    result: list[ModuleInterface] = []
     for name, config in get_modules_info().items():
         if name in accepted_modules:
             module = load_module(name, config)

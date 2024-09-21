@@ -4,15 +4,16 @@ from abc import ABCMeta, abstractmethod
 from typing import Any
 
 from src import State
+from src.Interfaces.ActionInterface import ActionInterface
 
 
 class ModuleInterface(metaclass=ABCMeta):
     """"""
 
-    module_info: dict[str, Any]
-
-    def __init__(self, module_info: dict[str, Any]) -> None:
-        self.module_info = module_info
+    @abstractmethod
+    def __init__(
+        self, module_name: str, module_version: str, module_info: dict[str, Any]
+    ) -> None: ...
 
     @abstractmethod
-    def __call__(self, state: State) -> None: ...
+    def get_actions(self, state: State) -> list[ActionInterface]: ...
