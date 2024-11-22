@@ -28,7 +28,7 @@ class ResourcesLoader(Node):
             state["tts-interface"] = load_interface(TTSInterface, state)
             state["gpt-interface"] = load_interface(GPTInterface, state)
             state["audio-interface"] = load_interface(AudioInterface, state)
-            state["external-modules"] = load_modules(
+            state["actions-modules"] = load_modules(
                 set(
                     [
                         name
