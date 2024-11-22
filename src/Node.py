@@ -46,10 +46,23 @@ class Node(metaclass=ABCMeta):
             f"from [{type(self.left).__name__}] to [{type(self.right).__name__}]]"
         )
 
+    def structure_str(self, depth: int = 0, short: bool = False) -> str:
+        right = (
+            f"{' ' * (depth + 1)}- None"
+            if self.right is None
+            else self.right.structure_str(depth + 1, short)
+        )
+        if short:
+            return f"{' ' * depth}- {type(self).__name__} ->\n{right}"
+        return (
+            f"{' ' * depth}- [Node '{self.name}'(id:{id(self)})[{type(self).__name__}]"
+            f" ->\n{right}"
+        )
+
     def log_info(self, message: str) -> None:
         current_time = str(round(time(), 3))
-        if len(current_time.split('.')[1]) < 3:
-            current_time += '0' * (3 - len(current_time.split('.')[1]))
+        if len(current_time.split(".")[1]) < 3:
+            current_time += "0" * (3 - len(current_time.split(".")[1]))
         print(colored(f"[{current_time}] {self}: {message}", "dark_grey"), file=stdout)
 
     @overload
@@ -61,8 +74,8 @@ class Node(metaclass=ABCMeta):
     def log_error(self, e: Exception, no_return: bool = False) -> None | NoReturn:
         print_exc(file=stderr)
         current_time = str(round(time(), 3))
-        if len(current_time.split('.')[1]) < 3:
-            current_time += '0' * (3 - len(current_time.split('.')[1]))
+        if len(current_time.split(".")[1]) < 3:
+            current_time += "0" * (3 - len(current_time.split(".")[1]))
         print(colored(f"[{current_time}] {self}: {e}", "light_red"), file=stderr)
         if no_return:
             raise RuntimeError(str(e))
@@ -75,7 +88,9 @@ class Node(metaclass=ABCMeta):
             _type = each_req[1]
             if get_origin(_type) is Union:
                 _type = get_args(_type)
-            if not isinstance(value, _type):
+            if get_origin(_type) is not None:
+                _type = get_origin(_type)
+            if not isinstance(value, _type):  # type: ignore
                 return False
         return True
 
@@ -91,7 +106,7 @@ class Node(metaclass=ABCMeta):
         state.phase = StatePhase.processing
         self(state)
         state["from"] = self.name
-        if type(self.right) is Node:
+        if isinstance(self.right, Node):
             state["to"] = self.right.name
             state.phase = StatePhase.passing
 

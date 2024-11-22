@@ -11,9 +11,7 @@ class ModuleInterface(metaclass=ABCMeta):
     """"""
 
     @abstractmethod
-    def __init__(
-        self, module_name: str, module_version: str, module_info: dict[str, Any]
-    ) -> None: ...
+    def __init__(self, module_info: dict[str, Any]) -> None: ...
 
     @abstractmethod
     def get_actions(self, state: State) -> list[ActionInterface]: ...

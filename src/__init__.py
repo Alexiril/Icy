@@ -6,10 +6,13 @@ from src.Functions import (
     load_module,
     load_modules,
     load_interface,
+    load_prev,
+    save_prev,
 )
 from src.Node import Node
 from src.State import State
 from src.StatePhase import StatePhase
+from src.Icy import init
 
 __all__: list[str] = [
     "get_languages_list",
@@ -19,7 +22,10 @@ __all__: list[str] = [
     "load_module",
     "load_modules",
     "load_interface",
+    "load_prev",
+    "save_prev",
     "Node",
     "State",
     "StatePhase",
+    "init",
 ]

@@ -29,5 +29,4 @@ class WebConfig(Node):
         with server.lock:
             state["web-server"] = server
             state["web-server-thread"] = web_server_thread
-
-            return
+        return

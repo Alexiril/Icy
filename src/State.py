@@ -11,11 +11,12 @@ if TYPE_CHECKING:
 class State(dict[str, Any]):
     """"""
 
-    phase: StatePhase
-    stack: list["Node"]
+    phase: StatePhase = StatePhase.frozen
+    stack: list["Node"] = []
 
     def __str__(self) -> str:
+        options = f"Phase : {self.phase}\nStack : {self.stack}\n"
         options = "\n".join(
-            [x + " : " + getattr(self, x) for x in dir(self) if not x.startswith("_")]
+            [f"{key} : {value}" for key, value in self.items()]
         )
         return f"State {{\n{options}\n}}"
