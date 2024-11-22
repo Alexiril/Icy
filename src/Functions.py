@@ -1,9 +1,20 @@
 """"""
 
+from importlib import import_module
+from inspect import isclass
 from json import JSONDecodeError, loads
 from os import listdir
 from pathlib import Path
+from traceback import print_exc
+from types import ModuleType
 from typing import Any
+
+from termcolor import colored
+
+from src.ExternalModule import ExternalModule
+from src.Interfaces import BasicInterface
+from src.State import State
+from src.Node import Node
 
 
 def get_languages_list() -> set[str]:
@@ -51,3 +62,52 @@ def get_modules_info() -> dict[str, dict[str, Any]]:
         if (datafile := modules_path / module / "module.json").is_file()
     }
     return result
+
+
+def load_module(name: str, config: dict[str, Any]) -> ExternalModule | None:
+    if not (Path(".") / "modules" / name / "__init__.py").is_file():
+        return
+    try:
+        runtime_module = import_module(f"modules.{name}")
+        if not hasattr(runtime_module, "Module") or not issubclass(
+            runtime_module.Module, Node
+        ):
+            return
+        return ExternalModule(
+            config,
+            runtime_module,
+        )
+    except Exception as e:
+        print_exc()
+        print(colored(f"Loading module failure: {e}", "light_red"))
+        return
+
+
+def load_modules(accepted_modules: set[str]) -> list[ExternalModule]:
+    result: list[ExternalModule] = []
+    for name, config in get_modules_info().items():
+        if name in accepted_modules:
+            module = load_module(name, config)
+            if module is not None:
+                result.append(module)
+
+    return result
+
+
+def load_interface[T: BasicInterface](interface: type[T], state: State) -> T:
+    intr_name: str = interface.__name__.replace("Interface", "")
+    impl_name: str = state["settings"].get(f"{intr_name}-impl", "")
+    if (
+        impl_name == ""
+        or not (Path(".") / "src" / intr_name / f"{impl_name}.py").exists()
+    ):
+        raise RuntimeError(
+            f"The {interface.__name__} name is incorrect: '{impl_name}'."
+        )
+    module: ModuleType = import_module(f"src.{intr_name}.{impl_name}")
+    cls: type[T] = getattr(module, impl_name)
+    if not isclass(cls) or not issubclass(cls, interface):
+        raise RuntimeError(
+            f"The '{impl_name}' doesn't implement the '{interface.__name__}'."
+        )
+    return cls(state)

@@ -24,10 +24,14 @@ class PrevDataWriter(Node):
                     initial_file = original_file.read()
             with open(prev_data_file, "wt") as file:
                 file.write(dumps(state["settings"]))
-        except (OSError, TypeError):
+        except (OSError, TypeError) as e:
+            self.log_info(f"Couldn't save the prev.data file due to {e}.")
+            if len(initial_file) == 0:
+                return
+            self.log_info("Attempting to write original prev.data file data back.")
             try:
                 with open(prev_data_file, "wb") as file:
                     file.write(initial_file)
-            except OSError:
-                pass
+            except OSError as e:
+                self.log_error(e)
         return
