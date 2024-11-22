@@ -21,9 +21,9 @@ from termcolor import colored
 
 from appstate import AppState
 from assistant import Assistant
-from assistant_function import AssistantFunction
+from src.AssistantAction import AssistantAction
 from intention_classifier import IntentionClassifier
-from module_interface import ModuleInterface
+from src.ModuleInterface import ModuleInterface
 from settings import Settings
 from translations import translations
 from voice_handler import VoiceHandler
@@ -111,7 +111,7 @@ def init(calculated_config: dict[str, Any]) -> AppState:
         translations.update(loads(file.read()))
     print(colored(translations["Initialization..."], "light_green"))
     print(colored(translations["Assistant initialization..."], "light_magenta"))
-    external_capabilities: dict[str, AssistantFunction] = {}
+    external_capabilities: dict[str, AssistantAction] = {}
     for module, module_state in state.settings.modules_states.items():
         if not module_state or not exists(
             Path(".") / "modules" / module / "__init__.py"

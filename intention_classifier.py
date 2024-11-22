@@ -39,7 +39,7 @@ class IntentionClassifier:
             self.vectorizer.transform([request])  # type: ignore
         )[0]
         predict_index = list(self.classifier_proba.classes_).index(  # type: ignore
-            predicted_intention
+            predicted_intention  # type: ignore
         )
         probabilities = self.classifier_proba.predict_proba(  # type: ignore
             self.vectorizer.transform([request])  # type: ignore
