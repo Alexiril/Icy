@@ -1,0 +1,11 @@
+{
+    "Open Application": "Open Application",
+    "Couldn't find PowerShell, rolling back to Command line": "Couldn't find PowerShell, rolling back to Command line",
+    "open": "open",
+    "start": "start",
+    "terminal": "terminal",
+    "console": "console",
+    "shell": "shell",
+    "browser": "browser",
+    "internet": "internet"
+}

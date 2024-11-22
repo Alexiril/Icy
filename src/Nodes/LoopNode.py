@@ -1,8 +1,8 @@
 """"""
 
 from typing import Any
-from classes.Node import Node
-from classes.State import State
+
+from src import Node, State
 
 
 class LoopNode(Node):

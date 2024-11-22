@@ -23,7 +23,7 @@ from appstate import AppState
 from assistant import Assistant
 from assistant_function import AssistantFunction
 from intention_classifier import IntentionClassifier
-from module_interface import ModuleInterface
+from src.ModuleInterface import ModuleInterface
 from settings import Settings
 from translations import translations
 from voice_handler import VoiceHandler

@@ -2,8 +2,8 @@
 
 from abc import ABCMeta, abstractmethod
 
-from classes.State import State
-from classes.StatePhase import StatePhase
+from src.State import State
+from src.StatePhase import StatePhase
 
 
 class Node(metaclass=ABCMeta):
@@ -28,9 +28,10 @@ class Node(metaclass=ABCMeta):
         self.name = name
         self.left = left
         self.right = right
+        self.requires = requires
 
     @abstractmethod
-    def __call__(self, state: State): ...
+    def __call__(self, state: State) -> None: ...
 
     def __str__(self) -> str:
         return (

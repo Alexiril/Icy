@@ -13,18 +13,16 @@ from traceback import print_exc as print_traceback
 # Don't have stubs for gpt4all
 from gpt4all import GPT4All  # type: ignore
 from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
-from openai import AuthenticationError, OpenAI
 from pyttsx3.engine import Engine as TTSEngine
-from termcolor import colored
 
-from translations import Translations
+from src import State
+from src.Functions import load_language
 
 ServerPhase = Literal["Configuration", "Starting", "Runtime"]
 
 
 class Handler(BaseHTTPRequestHandler):
-    translations: Translations
-    result_config: dict[str, Any]
+    state: State
     config_lock: Lock
     server_phase: ServerPhase
     tts_engine: TTSEngine
@@ -67,8 +65,10 @@ class Handler(BaseHTTPRequestHandler):
                 template_file = "index.html"
             template: Template = env.get_template(template_file)
             self.output = template.render(
-                translations=Handler.translations,
-                assistant_name=Handler.result_config.get("assistant_name", "Assistant"),
+                translations=Handler.state["translations"][""],
+                assistant_name=Handler.state["settings"].get(
+                    "assistant_name", "Assistant"
+                ),
             ).encode()
             self.send_headers()
         elif (match := search(r"/shared/(.+)", self.path)) is not None:
@@ -133,13 +133,13 @@ class Handler(BaseHTTPRequestHandler):
                 with open(module_path, "rt") as file:
                     app_config: dict[str, Any] = loads(file.read())
                     app_name: str = app_config.get(
-                        "name", self.translations["Unnamed application"]
+                        "name", Handler.state["translations"][""]["Unnamed application"]
                     )
-                    if self.translations["lang_name"] in app_config.get(
+                    if Handler.state["translations"][""]["lang_name"] in app_config.get(
                         "translations", {}
                     ):
                         app_name = app_config["translations"][
-                            self.translations["lang_name"]
+                            Handler.state["translations"][""]["lang_name"]
                         ].get(app_name, app_name)
                     return app_name
 
@@ -154,7 +154,7 @@ class Handler(BaseHTTPRequestHandler):
         elif self.path == "/previous-config":
             default_voice_key = "Microsoft Zira Desktop - English (United States)"
             config: dict[str, Any] = {
-                "language": self.translations["lang_name"],
+                "language": Handler.state["translations"][""]["lang_name"],
                 "assistant_name": "Assistant",
                 "assistant_gender": "Female",
                 "assistant_voice_key": default_voice_key,
@@ -182,6 +182,8 @@ class Handler(BaseHTTPRequestHandler):
                     print_traceback()
             openai_token_exists = "OPENAI_API_KEY" in environ
             if openai_token_exists:
+                from openai import AuthenticationError, OpenAI
+
                 try:
                     OpenAI().models.list()
                     openai_connection = True
@@ -197,7 +199,9 @@ class Handler(BaseHTTPRequestHandler):
             self.output = JSONEncoder().encode(config).encode()
             self.send_headers()
         elif self.path == "/translations":
-            self.output = JSONEncoder().encode(Handler.translations.as_dict()).encode()
+            self.output = (
+                JSONEncoder().encode(Handler.state["translations"][""]).encode()
+            )
             self.send_headers()
         elif self.path == "/run-ai":
             if Handler.server_phase != "Configuration" or not exists("prev.data"):
@@ -208,7 +212,7 @@ class Handler(BaseHTTPRequestHandler):
                     config = loads(file.read())
             except (OSError, JSONDecodeError):
                 config = {}
-            Handler.result_config.update(config)
+            Handler.state["settings"].update(config)
             Handler.config_lock.release()
             self.send_redirect("/")
         elif self.path == "/phase":
@@ -232,20 +236,11 @@ class Handler(BaseHTTPRequestHandler):
                 with open("prev.data", "w") as file:
                     file.write(JSONEncoder().encode(loads(data.decode())))
                 if (
-                    lang := config.get("language", Handler.translations["lang_name"])
-                ) != Handler.translations["lang_name"]:
-                    if not exists(Path(".") / "languages" / f"{lang}.json"):
-                        print(
-                            colored(
-                                f"Translation to language {lang} does't exits.",
-                                "red",
-                            )
-                        )
-                    else:
-                        with open(
-                            Path(".") / "languages" / f"{lang}.json", "rt"
-                        ) as file:
-                            Handler.translations.update(loads(file.read()))
+                    lang := config.get(
+                        "language", Handler.state["translations"][""]["lang_name"]
+                    )
+                ) != Handler.state["translations"][""]["lang_name"]:
+                    Handler.state["translations"][""].update(load_language(lang, ""))
                 self.output = JSONEncoder().encode({"result": "ok"}).encode()
                 self.send_headers()
             elif self.path == "/reset-ai":

@@ -2,8 +2,7 @@
 
 from abc import ABCMeta, abstractmethod
 
-from classes.Node import Node
-from classes.State import State
+from src import Node, State
 
 
 class RouterNode(Node, metaclass=ABCMeta):
