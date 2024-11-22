@@ -1,18 +1,27 @@
 """"""
 
+from json import loads
 from pathlib import Path
 from typing import Callable, NoReturn
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
+from termcolor import colored
 from tqdm import tqdm
-from vosk import Model
+from vosk import KaldiRecognizer, Model
 
+from src import State
 from src.Interfaces import STTInterface
 
 
 class VoskSTT(STTInterface):
     """"""
+
+    model: Model | None
+    model_name: str
+    debug: bool
+    recognizer: KaldiRecognizer
+    _saved_samplerate: int
 
     @staticmethod
     def vosk_model_loader(model_name: str) -> Model:
@@ -57,4 +66,36 @@ class VoskSTT(STTInterface):
                     file.extractall(model_path)
                 Path(str(model_name) + ".zip").unlink()
 
-        return Model(model_path=str(model_path), model_name=model_name)
+        return Model(model_path=str(model_path / model_name))
+
+    def __init__(self) -> None:
+        self.model = None
+        self.samplerate = 44100
+        self._saved_samplerate = 44100
+        return
+
+    def recognize(self, data: bytes) -> str:
+        if self.model is None:
+            raise RuntimeError(
+                "Vosk STT recognize was called without before start handler"
+            )
+        if self.samplerate != self._saved_samplerate:
+            self.recognizer = KaldiRecognizer(self.model, self.samplerate)
+            self._saved_samplerate = self.samplerate
+        if self.recognizer.AcceptWaveform(data):
+            return loads(self.recognizer.Result())["text"]
+        elif self.debug:
+            result: str = loads(self.recognizer.PartialResult())["partial"]
+            if result != "":
+                print(colored(result, "grey"))
+        return ""
+
+    def before_start(self, state: State) -> None:
+        if self.model is None or self.model_name != state["settings"]["vosk_model"]:
+            self.model_name = state["settings"]["vosk_model"]
+            print(colored(f"Vosk model reloading: {self.model_name}", "light_magenta"))
+            self.model = VoskSTT.vosk_model_loader(self.model_name)
+            print(colored("Vosk model loaded", "light_magenta"))
+        self.debug = state["settings"]["vosk_debug"]
+        self.recognizer = KaldiRecognizer(self.model, self.samplerate)
+        return

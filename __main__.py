@@ -1,4 +1,7 @@
 if __name__ == "__main__":
-    from icy import start
+    from src import init
+    from src import State
 
-    start()
+    scheme = init()
+    print(scheme.structure_str(short=True))
+    scheme.run(State())

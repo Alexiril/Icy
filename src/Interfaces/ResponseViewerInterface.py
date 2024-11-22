@@ -3,7 +3,6 @@
 from abc import ABCMeta, abstractmethod
 from typing import Callable
 
-from src import State
 from src.Interfaces.BasicInterface import BasicInterface
 
 
@@ -14,9 +13,13 @@ class ResponseViewerInterface(BasicInterface, metaclass=ABCMeta):
     def view(self, text: str) -> None: ...
 
     @abstractmethod
-    def hook(
-        self, state: State, get_text: Callable[[], str], is_finished: Callable[[], bool]
-    ) -> None: ...
+    def hook(self, get_text: Callable[[], str]) -> None: ...
 
     @abstractmethod
     def review(self) -> None: ...
+
+    @abstractmethod
+    def finished(self) -> bool: ...
+
+    @abstractmethod
+    def normal_terminate(self) -> None: ...

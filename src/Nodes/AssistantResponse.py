@@ -1,5 +1,6 @@
 """"""
 
+from time import sleep
 from typing import Any, Iterable
 
 from openai import Stream
@@ -34,18 +35,31 @@ class AssistantResponse(Node):
 
     def __call__(self, state: State) -> None:
         response: str | Iterable[str] | Stream[ChatCompletionChunk] = state["response"]
-        if type(response) is str:
+        if response == "":
+            return
+
+        state["__force_stop_response"] = False
+
+        if isinstance(response, str):
             print(colored(response, "cyan"))
             for viewer in self.viewers:
+                viewer.before_start(state)
                 viewer.view(response)
+            while not state["__force_stop_response"] and not all(
+                [x.finished() for x in self.viewers]
+            ):
+                sleep(0.5)
+            for viewer in self.viewers:
+                viewer.normal_terminate()
             return
+
         state["stop-chunk-loading"] = False
         punctuation = ".;!?:"
         result_string = ""
-        finished: bool = False
 
         for viewer in self.viewers:
-            viewer.hook(state, lambda: result_string, lambda: finished)
+            viewer.before_start(state)
+            viewer.hook(lambda: result_string)
 
         def punctuation_rfind(s: str) -> int:
             index = len(s) - 1
@@ -61,6 +75,10 @@ class AssistantResponse(Node):
             if text not in punctuation or final:
                 for viewer in self.viewers:
                     viewer.review()
+                while not state["__force_stop_response"] and not all(
+                    [x.finished() for x in self.viewers]
+                ):
+                    sleep(0.5)
 
         sliding_window = ""
         for part in response:
@@ -80,8 +98,9 @@ class AssistantResponse(Node):
             response.close()
         if sliding_window != "":
             handle_part(sliding_window)
-        finished = True
-        handle_part('', True)
+        handle_part("", True)
+        for viewer in self.viewers:
+            viewer.normal_terminate()
         print(colored(result_string, "cyan"))
         state["response"] = result_string
         return

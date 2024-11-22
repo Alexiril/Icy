@@ -1,5 +1,5 @@
 from http.server import BaseHTTPRequestHandler
-from json import JSONDecodeError, JSONEncoder, loads
+from json import dumps, loads
 from os import environ, listdir, remove
 from os.path import exists, isdir, isfile, join
 from pathlib import Path
@@ -8,15 +8,13 @@ from socket import socket
 from socketserver import BaseServer
 from threading import Lock
 from typing import Any, Literal
-from traceback import print_exc as print_traceback
 
 # Don't have stubs for gpt4all
 from gpt4all import GPT4All  # type: ignore
 from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
 from pyttsx3.engine import Engine as TTSEngine
 
-from src import State
-from src.Functions import load_language
+from src import State, load_prev, save_prev
 
 ServerPhase = Literal["Configuration", "Starting", "Runtime"]
 
@@ -54,7 +52,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_HEAD(self) -> None:
         if self.path == "/":
             env: Environment = Environment(
-                loader=FileSystemLoader("web"), autoescape=select_autoescape()
+                loader=FileSystemLoader("src/Web"), autoescape=select_autoescape()
             )
             template_file = "index.html"
             if Handler.server_phase == "Configuration":
@@ -72,11 +70,13 @@ class Handler(BaseHTTPRequestHandler):
             ).encode()
             self.send_headers()
         elif (match := search(r"/shared/(.+)", self.path)) is not None:
-            with open(Path(".") / "web" / "shared" / f"{match.group(1)}", "rb") as file:
+            with open(
+                Path(".") / "src" / "Web" / "shared" / f"{match.group(1)}", "rb"
+            ) as file:
                 self.output = file.read()
             self.send_headers()
         elif self.path == "/favicon.svg":
-            with open(Path(".") / "web" / "favicon.svg", "rb") as file:
+            with open(Path(".") / "src" / "Web" / "favicon.svg", "rb") as file:
                 self.output = file.read()
             self.send_headers()
         elif self.path == "/languages":
@@ -84,7 +84,7 @@ class Handler(BaseHTTPRequestHandler):
                 ".".join(file_name.split(".")[:-1])
                 for file_name in listdir("languages")
             ]
-            self.output = JSONEncoder().encode(models).encode()
+            self.output = dumps(models).encode()
             self.send_headers()
         elif self.path == "/vosk-models":
             models: list[str] = [
@@ -92,13 +92,13 @@ class Handler(BaseHTTPRequestHandler):
                 for file_name in listdir(".models")
                 if isdir(Path(".") / ".models" / f"{file_name}") and "vosk" in file_name
             ]
-            self.output = JSONEncoder().encode(models).encode()
+            self.output = dumps(models).encode()
             self.send_headers()
         elif self.path == "/voice-keys":
             voices: list[str] = [
                 voice.name for voice in Handler.tts_engine.getProperty("voices")
             ]
-            self.output = JSONEncoder().encode(voices).encode()
+            self.output = dumps(voices).encode()
             self.send_headers()
         elif self.path == "/gpt-models":
             gpt_models: list[dict[str, Any]] = [
@@ -122,7 +122,7 @@ class Handler(BaseHTTPRequestHandler):
                         if each["filename"] == file:
                             each["loaded"] = True
             gpt_models.sort(key=lambda x: 0 if x["loaded"] else 1)
-            self.output = JSONEncoder().encode(gpt_models).encode()
+            self.output = dumps(gpt_models).encode()
             self.send_headers()
         elif self.path == "/avaliable-modules":
 
@@ -146,37 +146,10 @@ class Handler(BaseHTTPRequestHandler):
                 if isdir(join("modules", folder_name))
                 and exists(join("modules", folder_name, "module.json"))
             }
-            self.output = JSONEncoder().encode(modules).encode()
+            self.output = dumps(modules).encode()
             self.send_headers()
         elif self.path == "/previous-config":
-            default_voice_key = "Microsoft Zira Desktop - English (United States)"
-            config: dict[str, Any] = {
-                "language": Handler.state["translations"][""]["lang_name"],
-                "assistant_name": "Assistant",
-                "assistant_gender": "Female",
-                "assistant_voice_key": default_voice_key,
-                "assistant_voice_rate": 150,
-                "vosk_model": "vosk-model-en-us-0.42-gigaspeech",
-                "vosk_debug": False,
-                "use_chat": True,
-                "gpt_model": "Phi-3-mini-4k-instruct.Q4_0.gguf",
-                "use_openai_gpt": True,
-                "use_openai_tts": False,
-                "openai_tts_model": "nova",
-                "gpt_info": "",
-                "modules_states": {},
-                "intention_best_proba": 0.5,
-            }
-            if exists("prev.data"):
-                try:
-                    with open("prev.data", "rb") as file:
-                        prev_data: dict[str, Any] = loads(file.read())
-                    config.update(
-                        (key, prev_data[key])
-                        for key in config.keys() & prev_data.keys()
-                    )
-                except (OSError, JSONDecodeError):
-                    print_traceback()
+            config = load_prev()
             openai_token_exists = "OPENAI_API_KEY" in environ
             if openai_token_exists:
                 from openai import AuthenticationError, OpenAI
@@ -193,23 +166,17 @@ class Handler(BaseHTTPRequestHandler):
                 openai_connection = False
             config["found_openai_token"] = openai_token_exists
             config["have_openai_services_connection"] = openai_connection
-            self.output = JSONEncoder().encode(config).encode()
+            self.output = dumps(config).encode()
             self.send_headers()
         elif self.path == "/translations":
             self.output = (
-                JSONEncoder().encode(Handler.state["translations"][""]).encode()
+                dumps(Handler.state["translations"][""]).encode()
             )
             self.send_headers()
         elif self.path == "/run-ai":
             if Handler.server_phase != "Configuration" or not exists("prev.data"):
                 self.send_redirect("/")
             Handler.server_phase = "Starting"
-            try:
-                with open("prev.data") as file:
-                    config = loads(file.read())
-            except (OSError, JSONDecodeError):
-                config = {}
-            Handler.state["settings"].update(config)
             Handler.config_lock.release()
             self.send_redirect("/")
         elif self.path == "/phase":
@@ -226,28 +193,17 @@ class Handler(BaseHTTPRequestHandler):
                     return
                 data: bytes = self.rfile.read(int(length))
                 config: dict[str, Any] = loads(data.decode())
-                if exists("prev.data"):
-                    with open("prev.data", "r") as file:
-                        config = loads(file.read())
-                    config.update(loads(data.decode()))
-                with open("prev.data", "w") as file:
-                    file.write(JSONEncoder().encode(loads(data.decode())))
-                if (
-                    lang := config.get(
-                        "language", Handler.state["translations"][""]["lang_name"]
-                    )
-                ) != Handler.state["translations"][""]["lang_name"]:
-                    Handler.state["translations"][""].update(load_language(lang, ""))
-                self.output = JSONEncoder().encode({"result": "ok"}).encode()
+                save_prev(config)
+                self.output = dumps({"result": "ok"}).encode()
                 self.send_headers()
             elif self.path == "/reset-ai":
                 if exists("prev.data"):
                     remove("prev.data")
-                self.output = JSONEncoder().encode({"result": "ok"}).encode()
+                self.output = dumps({"result": "ok"}).encode()
                 self.send_headers()
         except Exception as e:
             self.output = (
-                JSONEncoder().encode({"result": "error", "reason": e}).encode()
+                dumps({"result": "error", "reason": e}).encode()
             )
             self.send_headers(500)
 

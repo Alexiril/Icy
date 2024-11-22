@@ -2,7 +2,7 @@
 
 from importlib import import_module
 from inspect import isclass
-from json import JSONDecodeError, loads
+from json import JSONDecodeError, dumps, loads
 from os import listdir
 from pathlib import Path
 from types import ModuleType
@@ -96,10 +96,11 @@ def load_modules(accepted_modules: set[str]) -> list[ModuleInterface]:
 def load_interface[T: BasicInterface](interface: type[T], state: State) -> T:
     intr_name: str = interface.__name__.replace("Interface", "")
     impl_name: str = state["settings"].get(f"{intr_name}-impl", "")
-    if (
-        impl_name == ""
-        or not (Path(".") / "src" / intr_name / f"{impl_name}.py").exists()
-    ):
+    if impl_name == "":
+        raise RuntimeError(
+            f"The implementation for '{interface.__name__}' is not set in settings."
+        )
+    if not (Path(".") / "src" / intr_name / f"{impl_name}.py").exists():
         raise RuntimeError(
             f"The {interface.__name__} name is incorrect: '{impl_name}'."
         )
@@ -109,4 +110,35 @@ def load_interface[T: BasicInterface](interface: type[T], state: State) -> T:
         raise RuntimeError(
             f"The '{impl_name}' doesn't implement the '{interface.__name__}'."
         )
-    return cls(state)
+    result = cls()
+    result.before_start(state)
+    return result
+
+def load_prev() -> dict[str, Any]:
+    settings: dict[str, Any] = {}
+    prev_data_file: Path = Path(".") / "prev.data"
+    if prev_data_file.is_file():
+        with open(prev_data_file, "rb") as file:
+            settings = loads(file.read())
+    return settings
+
+def save_prev(settings: dict[str, Any]) -> None:
+    prev_data_file: Path = Path(".") / "prev.data"
+    initial_file: bytes = b""
+    initial: dict[str, Any] = {}
+    try:
+        if prev_data_file.is_file():
+            with open(prev_data_file, "rb") as original_file:
+                initial_file = original_file.read()
+                initial = loads(initial_file)
+        with open(prev_data_file, "wt") as file:
+            initial.update(settings)
+            file.write(dumps(initial))
+    except (OSError, TypeError) as e:
+        print(f"Couldn't save the prev.data file due to {e}.")
+        if len(initial_file) == 0:
+            return
+        print("Attempting to write original prev.data file data back.")
+        with open(prev_data_file, "wb") as file:
+            file.write(initial_file)
+    return
