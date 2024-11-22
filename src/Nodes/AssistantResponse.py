@@ -28,7 +28,7 @@ class AssistantResponse(Node):
             right,
             [
                 ("settings", dict[str, Any]),
-                ("response", str | Iterable[str] | Stream[ChatCompletionChunk])
+                ("response", str | Iterable[str] | Stream[ChatCompletionChunk]),
             ],
         )
 
@@ -38,54 +38,50 @@ class AssistantResponse(Node):
             print(colored(response, "cyan"))
             for viewer in self.viewers:
                 viewer.view(response)
-        else:
-            punctuation = ".;!?:"
-            result_string = ""
+            return
+        state["stop-chunk-loading"] = False
+        punctuation = ".;!?:"
+        result_string = ""
+        finished: bool = False
 
-            def update_text() -> str:
-                return result_string
+        for viewer in self.viewers:
+            viewer.hook(state, lambda: result_string, lambda: finished)
 
-            finished: bool = False
-            MessageWindow(
-                text=update_text,
-                show=lambda: not finished,
-                speak_worker=self.speak_worker,
-            )
+        def punctuation_rfind(s: str) -> int:
+            index = len(s) - 1
+            for symbol in s[::-1]:
+                if symbol in punctuation:
+                    return index
+                index -= 1
+            return -1
 
-            def punctuation_rfind(s: str) -> int:
-                index = len(s) - 1
-                for symbol in s[::-1]:
-                    if symbol in punctuation:
-                        return index
-                    index -= 1
-                return -1
+        def handle_part(text: str, final: bool = False) -> None:
+            nonlocal result_string
+            result_string += text
+            if text not in punctuation or final:
+                for viewer in self.viewers:
+                    viewer.review()
 
-            def handle_part(text: str) -> None:
-                nonlocal result_string
-                result_string += text
-                if text not in punctuation:
-                    self.generate_speech(text)
-                    self.play_speech()
-
-            sliding_window = ""
-            for part in text:
-                if not self.speak_worker.work:
-                    break
-                if isinstance(part, ChatCompletionChunk):
-                    part = part.choices[0].delta.content
-                    if part is None:
-                        part = ""
-                sliding_window += part
-                if (end_pos := punctuation_rfind(sliding_window)) != -1:
-                    sliding_window = sliding_window.removeprefix(
-                        (new_part := sliding_window[: end_pos + 1])
-                    )
-                    handle_part(new_part)
-            if isinstance(text, Stream):
-                text.close()
-            if sliding_window != "":
-                handle_part(sliding_window)
-            finished = True
-            print(colored(result_string, "cyan"))
-            state["response"] = result_string
+        sliding_window = ""
+        for part in response:
+            if state["stop-chunk-loading"]:
+                break
+            if isinstance(part, ChatCompletionChunk):
+                part = part.choices[0].delta.content
+                if part is None:
+                    part = ""
+            sliding_window += part
+            if (end_pos := punctuation_rfind(sliding_window)) != -1:
+                sliding_window = sliding_window.removeprefix(
+                    (new_part := sliding_window[: end_pos + 1])
+                )
+                handle_part(new_part)
+        if isinstance(response, Stream):
+            response.close()
+        if sliding_window != "":
+            handle_part(sliding_window)
+        finished = True
+        handle_part('', True)
+        print(colored(result_string, "cyan"))
+        state["response"] = result_string
         return

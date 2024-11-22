@@ -3,6 +3,9 @@
 from types import ModuleType
 from typing import Any
 
+from src.Interfaces import ModuleInterface
+from src.State import State
+
 
 class ExternalModule:
     """"""
@@ -11,7 +14,7 @@ class ExternalModule:
     module_version: str
     module_info: dict[str, Any]
 
-    actual_module: ModuleType
+    actual_module: ModuleInterface
 
     def __init__(
         self,
@@ -22,4 +25,12 @@ class ExternalModule:
         self.module_version = module_info.get("version", "No version")
         self.module_info = module_info
 
-        self.actual_module = actual_module
+        if not hasattr(actual_module, "Module") or not issubclass(
+            getattr(actual_module, "Module"), ModuleInterface
+        ):
+            raise RuntimeError(f"The module '{self.module_name}'")
+        self.actual_module = getattr(actual_module, "Module")(self.module_info)
+
+    def __call__(self, state: State) -> None:
+        self.actual_module(state)
+        return

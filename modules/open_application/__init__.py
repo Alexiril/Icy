@@ -12,7 +12,7 @@ from webbrowser import open as web_open
 
 from termcolor import colored
 
-from assistant_function import AssistantFunction
+from src.AssistantAction import AssistantAction
 from src.ModuleInterface import ModuleInterface
 
 if TYPE_CHECKING:
@@ -70,8 +70,8 @@ class Module(ModuleInterface):
             if arg in self.browser_options:
                 self._open_browser_anyos()
 
-    def get_function(self) -> AssistantFunction:
-        return AssistantFunction(
+    def get_function(self) -> AssistantAction:
+        return AssistantAction(
             [
                 self.module_config["translations"][self.state.settings.language][
                     "open"

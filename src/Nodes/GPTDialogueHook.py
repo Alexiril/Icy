@@ -1,7 +1,9 @@
 """"""
 
-from openai.types.chat import ChatCompletionMessageParam
 from queue import Queue
+
+from openai.types.chat import ChatCompletionMessageParam
+
 from src import Node, State
 
 
@@ -22,15 +24,7 @@ class GPTDialogueHook(Node):
     def __call__(self, state: State) -> None:
         if "gpt-answered" not in state:
             return
-        if not isinstance(gpt := state["gpt-answered"], bool):
-            self.log_error(
-                RuntimeWarning(
-                    "Incorrect type of 'gpt-answered' parameter "
-                    f"passed: [{type(gpt)}]."
-                )
-            )
-            return
-        if gpt:
+        if state["gpt-answered"]:
             if not isinstance(response := state["response"], str):
                 self.log_error(
                     RuntimeWarning(
