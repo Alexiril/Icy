@@ -1,0 +1,39 @@
+{
+    "os-open-application-action-keys": [
+        "open terminal",
+        "open console",
+        "open notepad",
+        "open browser",
+        "open calculator",
+        "start terminal",
+        "start console",
+        "start browser",
+        "start notepad",
+        "start calculator"
+    ],
+    "terminal-request": [
+        "terminal",
+        "console",
+        "shell"
+    ],
+    "browser-request": [
+        "browser",
+        "internet"
+    ],
+    "notepad-request": [
+        "notepad",
+        "text"
+    ],
+    "calc-request": [
+        "calculator"
+    ],
+    "opening-terminal": "Alright, openining the terminal.",
+    "opening-browser": "Okay, opening the browser.",
+    "opening-notepad": "Got it, opening the notepad.",
+    "opening-calc": "Okay, opening the calculator.",
+    "error-no-powershell": "Couldn't find PowerShell, rolling back to Command line",
+    "error-no-notepad": "No notepad app found",
+    "error-no-calc": "No calculator app found",
+    "error-no-cmd": "No command line app found",
+    "not-understand-what-to-open": "Sorry, I didn't understand, what do I have to open?"
+}

@@ -8,6 +8,7 @@ from src.Functions import (
     load_interface,
     load_prev,
     save_prev,
+    stream_to_str
 )
 from src.Node import Node
 from src.State import State
@@ -24,6 +25,7 @@ __all__: list[str] = [
     "load_interface",
     "load_prev",
     "save_prev",
+    "stream_to_str",
     "Node",
     "State",
     "StatePhase",

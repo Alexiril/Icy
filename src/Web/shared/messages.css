@@ -1,0 +1,23 @@
+.message-container {
+    width: fit-content;
+    border-radius: var(--pico-border-radius);
+    padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
+    max-width: 45%;
+    margin-bottom: 10px;
+}
+
+.bot-message {
+    background-color: transparent;
+    border: var(--pico-border-width) solid var(--pico-secondary-background);
+    color: var(--pico-secondary);
+    margin-left: 1em;
+    text-align: left;
+}
+
+.user-message {
+    background-color: transparent;
+    border: var(--pico-border-width) solid var(--pico-primary-background);
+    color: var(--pico-primary);
+    margin-right: 1em;
+    text-align: right;
+}

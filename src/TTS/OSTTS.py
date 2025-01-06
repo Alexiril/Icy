@@ -40,6 +40,7 @@ class OSTTS(TTSInterface):
         return
 
     def generate_speech(self, data: str) -> Wave_read:
+        data = self.remove_unreadable(data)
         self.tts_engine.save_to_file(
             data,
             (Path(gettempdir()) / "assistant_speech.wav").as_posix(),

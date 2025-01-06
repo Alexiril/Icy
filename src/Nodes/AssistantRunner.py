@@ -4,6 +4,7 @@ from queue import Queue
 from typing import Any, Iterable
 
 from openai.types.chat import ChatCompletionMessageParam
+from termcolor import colored
 
 from src import Node, State
 from src.Interfaces import GPTInterface, ModuleInterface, PhraseProcessorInterface
@@ -27,6 +28,7 @@ class AssistantRunner(Node):
             left,
             right,
             [
+                ("full-dialogue-history", Queue[dict[str, str]]),
                 ("assistant-dialogue", Queue[ChatCompletionMessageParam]),
                 ("recognized-text", str),
                 ("gpt-interface", GPTInterface),
@@ -42,6 +44,7 @@ class AssistantRunner(Node):
         text: str = state["recognized-text"]
         if state["settings"]["assistant_name"].lower() not in text:
             return
+        state["full-dialogue-history"].put({"role": "user", "content": text})
         for processor in self.phrase_processors:
             processor.before_start(state)
             text = processor.process(text)
@@ -51,7 +54,22 @@ class AssistantRunner(Node):
             x for module in state["actions-modules"] for x in module.get_actions(state)
         ]:
             if action.uid == words[0]:
-                action(state, words)
-                return
-        state["gpt-interface"].answer(request, state)
+                try:
+                    action(state, words)
+                    return
+                except Exception as e:
+                    print(colored(f"Error while doing action '{action.uid}': {e}"))
+                    state["response"] = state["translations"][""][
+                        "Sorry, couldn't do the action you asked. Some error occured."
+                    ]
+                    return
+        if state["settings"]["use_chat"]:
+            state["assistant-dialogue"].put(
+                {
+                    "role": "user",
+                    "content": request,
+                }
+            )
+            state["response"] = state["gpt-interface"].answer(request, state)
+            state["gpt-answered"] = True
         return

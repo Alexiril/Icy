@@ -3,6 +3,7 @@ from src.Nodes.AssistantResponse import AssistantResponse
 from src.Nodes.AssistantRunner import AssistantRunner
 from src.Nodes.AssistantStart import AssistantStart
 from src.Nodes.GPTDialogueHook import GPTDialogueHook
+from src.Nodes.GPTDialogueSaver import GPTDialogueSaver
 from src.Nodes.Init import Init
 from src.Nodes.LoopNode import LoopNode
 from src.Nodes.PrevDataReader import PrevDataReader
@@ -20,6 +21,7 @@ __all__: list[str] = [
     "AssistantRunner",
     "AssistantStart",
     "GPTDialogueHook",
+    "GPTDialogueSaver",
     "Init",
     "LoopNode",
     "PrevDataReader",

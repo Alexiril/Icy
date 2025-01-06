@@ -4,7 +4,7 @@ from typing import Any
 from src import State
 from src.Interfaces import ModuleInterface, ActionInterface
 
-from modules.builtin.actions import QuitAction, HeyAction
+from modules.obsidian_vault.actions import SearchInVaultAction, MakeANoteAction
 
 
 class Module(ModuleInterface):
@@ -17,10 +17,10 @@ class Module(ModuleInterface):
 
     def get_actions(self, state: State) -> list[ActionInterface]:
         return [
-            QuitAction(
+            SearchInVaultAction(
                 state, self.translations[state["translations"][""]["lang_name"]]
             ),
-            HeyAction(
+            MakeANoteAction(
                 state, self.translations[state["translations"][""]["lang_name"]]
-            ),
+            )
         ]

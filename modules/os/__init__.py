@@ -4,7 +4,7 @@ from typing import Any
 from src import State
 from src.Interfaces import ModuleInterface, ActionInterface
 
-from modules.builtin.actions import QuitAction, HeyAction
+from modules.os.actions import OpenApplicationAction
 
 
 class Module(ModuleInterface):
@@ -17,10 +17,7 @@ class Module(ModuleInterface):
 
     def get_actions(self, state: State) -> list[ActionInterface]:
         return [
-            QuitAction(
-                state, self.translations[state["translations"][""]["lang_name"]]
-            ),
-            HeyAction(
+            OpenApplicationAction(
                 state, self.translations[state["translations"][""]["lang_name"]]
             ),
         ]
