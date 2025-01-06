@@ -1,0 +1,9 @@
+{
+    "obsidian-vault-search-in-vault-action-keys": ["search in obsidian", "find in obsidian"],
+    "not-found-text": "Sorry, I couldn't find the text requested",
+    "search-action-system-prompt": "Your only task is to find \"%s\" in the user's text. If you can't find it - answer **only** NONE",
+    "obsidian-vault-make-a-note-action-keys": ["make a note in obsidian"],
+    "make-note-system-prompt": "Your task is to make a short note about the user's request.",
+    "note-okay": "Okay, the note is saved.",
+    "make-note-name-request": "Please, answer, what should be the name for this note? Answer with one or couple words:"
+}

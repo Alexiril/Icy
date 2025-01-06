@@ -24,6 +24,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Date", self.date_time_string())
         self.send_header("Content-Length", str(len(self.output)))
         self.send_header("Location", location)
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
     def send_headers(self, response_code: int = 200) -> None:
@@ -31,6 +32,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Server", "Icy packet manager server")
         self.send_header("Date", self.date_time_string())
         self.send_header("Content-Length", str(len(self.output)))
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
     def do_HEAD(self) -> None:

@@ -35,7 +35,7 @@ class GPTInterface(BasicInterface, metaclass=ABCMeta):
                     (
                         f'{bot_name_description} '
                         f'{state["settings"].get("assistant_name")}. '
-                        f'{state["translations"][""]["You are a"]} '
+                        f'{state["translations"][""]["Your gender is "]} '
                         f'{state["translations"][""][gender]}. '
                         f'{final_command} '
                         f'{gpt_info_pre if len(gpt_info) != 0 else ""} {gpt_info}'

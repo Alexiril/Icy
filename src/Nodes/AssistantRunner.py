@@ -4,6 +4,7 @@ from queue import Queue
 from typing import Any, Iterable
 
 from openai.types.chat import ChatCompletionMessageParam
+from termcolor import colored
 
 from src import Node, State
 from src.Interfaces import GPTInterface, ModuleInterface, PhraseProcessorInterface
@@ -53,8 +54,15 @@ class AssistantRunner(Node):
             x for module in state["actions-modules"] for x in module.get_actions(state)
         ]:
             if action.uid == words[0]:
-                action(state, words)
-                return
+                try:
+                    action(state, words)
+                    return
+                except Exception as e:
+                    print(colored(f"Error while doing action '{action.uid}': {e}"))
+                    state["response"] = state["translations"][""][
+                        "Sorry, couldn't do the action you asked. Some error occured."
+                    ]
+                    return
         if state["settings"]["use_chat"]:
             state["assistant-dialogue"].put(
                 {

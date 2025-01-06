@@ -1,3 +1,4 @@
+const ipm_server_url = "http://localhost"
 let translations = null
 function make_notification(state, text) {
     svg = "";
@@ -113,6 +114,56 @@ function run_ai() {
         window.location.assign("/run-ai")
     })
 }
+function remove_module(module_id) {
+    fetch(`/remove-module/${module_id}`).then(response => response.json()).then(data => {
+        if (data.result !== null && data.result === "ok") {
+            let text = "The module was removed:"
+            if (translations !== null)
+                text = translations[text]
+            addToStack("notifications-stack", make_notification("good", text + ` ${module_id}`), 3000)
+            setTimeout(() => {
+                window.location.reload()
+            }, 4000)
+        }
+        else {
+            let text = "Some error occured while trying to remove the module:"
+            if (translations !== null)
+                text = translations[text]
+            addToStack("notifications-stack", make_notification("bad", text + ` ${data.reason}`), 3000)
+        }
+    }).catch(reason => {
+        let text = "Some error occured while trying to remove the module:"
+        if (translations !== null)
+            text = translations[text]
+        addToStack("notifications-stack", make_notification("bad", text + ` ${reason}`), 3000)
+    })
+}
+function install_module(module_id, module_install_id) {
+    const uri = encodeURI(`${ipm_server_url}/api/packed/${module_install_id}`)
+    fetch(`/install-module/${module_id}&uri=${uri}`).then(response => response.json()).then(data => {
+        if (data.result !== null && data.result === "ok") {
+            let text = "The module was installed:"
+            if (translations !== null)
+                text = translations[text]
+            addToStack("notifications-stack", make_notification("good", text + ` ${module_id}`), 3000)
+            setTimeout(() => {
+                window.location.reload()
+            }, 4000)
+        }
+        else {
+            let text = "Some error occured while trying to install the module:"
+            if (translations !== null)
+                text = translations[text]
+            addToStack("notifications-stack", make_notification("bad", text + ` ${data.reason}`), 3000)
+        }
+    }).catch(reason => {
+        let text = "Some error occured while trying to install the module:"
+        if (translations !== null)
+            text = translations[text]
+        addToStack("notifications-stack", make_notification("bad", text + ` ${reason}`), 3000)
+    })
+}
+
 let global_loaded = 0
 function fillSelect(url_to_fetch, select_id) {
     fetch(url_to_fetch).then((response) => response.json()).then((data) => {
@@ -149,26 +200,27 @@ fetch("/gpt-models").then(response => response.json()).then(data => {
 fetch("/avaliable-modules").then(response => response.json()).then(data => {
     global_loaded += 1
     const fieldset = $("#on-off-modules")
-    let modules = []
+    let modules = {}
     for (const [key, value] of Object.entries(data)) {
         const name = value[0]
         const version = value[1]
-        const remove_button = key === "builtin" ? "" : `<button id="remove_module_${key}" name="remove_module_${key}">${translations["Remove"] === undefined ? "Remove" : translations["Remove"]}</button>`
+        const remove_button = key === "builtin" ? "" : `<button type="button" onclick="remove_module('${key}')" id="remove_module_${key}" name="remove_module_${key}">${translations["Remove"] === undefined ? "Remove" : translations["Remove"]}</button>`
         let field = $(`<label for="module_${key}">
                             <input type="checkbox" id="module_${key}" name="module_${key}" role="switch">
                             ${translations[name] === undefined ? name : translations[name]} v${version}
                             ${remove_button}
                         </label>`)
         fieldset.append(field.get())
-        modules.push([key, version])
+        modules[key] = version
     }
-    fetch("http://localhost/api/get-packed-list").then(response => response.json()).then(data => {
+    fetch(`${ipm_server_url}/api/get-packed-list`).then(response => response.json()).then(data => {
         global_loaded += 1
         const fieldset = $("#new-modules")
         data.forEach(entry => {
-            if (modules.includes([entry.module, entry.version]))
+            if (modules[entry.module] === entry.version)
                 return
-            const install_button = `<button id="install_module_${entry.module}" name="install_module_${entry.module}">${translations["Install"] === undefined ? "Install" : translations["Install"]}</button>`
+            const module_install_id = `${entry.module}&ver=${entry.version}&hash=${entry.hash}`
+            const install_button = `<button type="button" onclick="install_module('${entry.module}', '${module_install_id}')" id="install_module_${entry.module}" name="install_module_${entry.module}">${translations["Install"] === undefined ? "Install" : translations["Install"]}</button>`
             let field = $(`<label for="install_module_${entry.module}">
                             ${install_button}
                             ${translations[entry.name] === undefined ? entry.name : translations[entry.name]} v${entry.version}

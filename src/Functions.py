@@ -196,7 +196,7 @@ def stream_to_str(
 
     sliding_window = ""
     for part in stream:
-        if state["__force_stop_stream"]:
+        if state.get("__force_stop_stream", False):
             break
         if isinstance(part, ChatCompletionChunk):
             part = part.choices[0].delta.content

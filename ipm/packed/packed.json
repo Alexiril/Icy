@@ -4,5 +4,11 @@
         "module": "os",
         "version": "0.1a",
         "hash": "7e2c4695a2bb7979a92b9c661d6e1d4c7d36f44d068b3845f24e293577393cff"
+    },
+    {
+        "name": "Obsidian Vault integration",
+        "module": "obsidian_vault",
+        "version": "0.1a",
+        "hash": "0a50916118a06ae9d94e18825ece6895d8f1dc7adfb8ada1cc2a9755ae09c64c"
     }
 ]
