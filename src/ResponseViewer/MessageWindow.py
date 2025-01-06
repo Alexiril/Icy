@@ -1,8 +1,9 @@
 """"""
 
-from copy import copy
+from pyperclip import copy
 from datetime import datetime
 from threading import Thread
+from time import sleep
 from tkinter import NSEW, Event, Menu, Misc, Tk
 from tkinter.ttk import Label
 from typing import Callable
@@ -16,6 +17,7 @@ class MessageWindow(ResponseViewerInterface):
     state: State | None
     thread: "MessageWindowThread"
     start_time: datetime
+    started: bool
 
     class MessageWindowThread(Thread):
         def __init__(
@@ -28,11 +30,15 @@ class MessageWindow(ResponseViewerInterface):
             self.root: Tk
             self.popup_menu: Menu
             self.label: Label
+            self.started: bool
             Thread.__init__(self)
 
         def show_window(self, text: str | Callable[[], str]) -> None:
             self.text: str | Callable[[], str] = text
+            self.started = False
             self.start()
+            while not self.started:
+                sleep(0.1)
 
         def terminate(self) -> None:
             self.root.quit()
@@ -65,8 +71,9 @@ class MessageWindow(ResponseViewerInterface):
             )
 
             def stop_command() -> bool:
+                self.started = False
                 return self.terminate() is self.state.update(
-                    {"__force_stop_response": True}
+                    {"__force_stop_stream": True}
                 )
 
             self.popup_menu.add_command(
@@ -82,7 +89,7 @@ class MessageWindow(ResponseViewerInterface):
 
             def handle_transparency() -> None:
                 if getattr(self.root, "alpha_pause"):
-                    if not self.state.get("__force_stop_response", False):
+                    if not self.state.get("__force_stop_stream", False):
                         self.root.after(100, handle_transparency)
                         return
                     setattr(self.root, "alpha_pause", False)
@@ -102,10 +109,11 @@ class MessageWindow(ResponseViewerInterface):
                 self.root.after(1000 // 24, handle_transparency)
 
             self.root.after(1000 // 24, handle_transparency)
+            self.started = True
             self.root.mainloop()
 
         def review(self) -> None:
-            if isinstance(self.text, Callable):
+            if self.started and isinstance(self.text, Callable):
                 text = self.text()
                 self.label.config(text=text)
 

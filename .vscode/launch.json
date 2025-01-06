@@ -24,6 +24,15 @@
             "program": "__main__.py",
             "console": "integratedTerminal",
             "justMyCode": false
+        },
+        {
+            "name": "Python Debugger: IPM",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "__main__.ipm.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

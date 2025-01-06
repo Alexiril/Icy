@@ -15,7 +15,9 @@ from src.Nodes import (
     WebConfig,
     WebHook,
 )
-from src.PhraseProcessor import IntentionClassifier
+from src.Nodes.GPTDialogueSaver import GPTDialogueSaver
+from src.Nodes.PrevDataWriter import PrevDataWriter
+from src.PhraseProcessor import SimpleIntentionClassifier
 from src.ResponseViewer import MessageWindow, PronounceText
 
 
@@ -24,7 +26,7 @@ def init() -> Init:
 
     audio_processors = ()
 
-    intention_classifier = IntentionClassifier()
+    intention_classifier = SimpleIntentionClassifier()
     phrase_processors = (intention_classifier,)
 
     message_window = MessageWindow()
@@ -33,22 +35,28 @@ def init() -> Init:
 
     quit_node = Quit(None)
 
-    quit_response = AssistantResponse(None, quit_node, viewers)
-    quit_node.left = quit_response
+    prev_data_writer = PrevDataWriter(None, quit_node)
+    quit_node.left = prev_data_writer
+
+    gpt_dialogue_saver = GPTDialogueSaver(None, prev_data_writer)
+    prev_data_writer.left = gpt_dialogue_saver
+
+    quit_response = AssistantResponse(None, gpt_dialogue_saver, viewers)
+    gpt_dialogue_saver.left = quit_response
 
     assistant_runner = AssistantRunner(None, None, phrase_processors)
 
     speech_getter = SpeechGetter(None, assistant_runner, audio_processors)
     assistant_runner.left = speech_getter
 
-    assistant_response = AssistantResponse(None, speech_getter, viewers)
-    speech_getter.left = assistant_response
+    gpt_dialogue_hook = GPTDialogueHook(None, speech_getter)
+    speech_getter.left = gpt_dialogue_hook
 
-    gpt_dialog_hook = GPTDialogueHook(None, assistant_response)
-    assistant_response.left = gpt_dialog_hook
+    assistant_response = AssistantResponse(None, gpt_dialogue_hook, viewers)
+    gpt_dialogue_hook.left = assistant_response
 
-    loop = LoopNode(None, gpt_dialog_hook, quit_response)
-    gpt_dialog_hook.left = loop
+    loop = LoopNode(None, assistant_response, quit_response)
+    assistant_response.left = loop
     assistant_runner.right = loop
     quit_response.left = loop
 

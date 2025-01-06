@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="{{ translations["lang_id"] }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="light dark" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/shared/pico.amber.min.css">
+    <link rel="stylesheet" href="/shared/messages.css">
+    <script src="/shared/jquery-3.7.1.min.js"></script>
+    <title>{{ translations["Assistant"] }} {{ assistant_name }}</title>
+</head>
+
+<body>
+</body>
+<main class="container">
+    <article>
+        <header>
+            <div class="container" style="text-align: center;">
+                <h3>{{ translations["Assistant is ready"] }}</h3>
+            </div>
+        </header>
+        <div class="container" id="messages" style="height: 60vh; overflow-y: auto;">
+        </div>
+        <footer>
+            <details class="dropdown">
+                <summary role="button" class="secondary outline">{{ translations["Theme"] }}</summary>
+                <ul>
+                    <li><a href="#" data-theme-switcher="auto">{{ translations["Auto"] }}</a></li>
+                    <li><a href="#" data-theme-switcher="light">{{ translations["Light"] }}</a></li>
+                    <li><a href="#" data-theme-switcher="dark">{{ translations["Dark"] }}</a></li>
+                </ul>
+            </details>
+        </footer>
+    </article>
+</main>
+<script src="/shared/minimal-theme-switcher.js"></script>
+<script src="/shared/messages.js"></script>
+</html>

@@ -41,10 +41,15 @@ function send_config(callback_if_success = null) {
             gpt_model: $("#gpt_model").val(),
             use_openai_gpt: $("#use_openai_gpt").is(":checked"),
             use_openai_tts: $("#use_openai_tts").is(":checked"),
+            use_openai_stt: $("#use_openai_stt").is(":checked"),
             openai_tts_model: $("#openai_tts_model").val(),
             gpt_info: $("#gpt_info").val(),
             modules_states: modules_states,
             intention_best_proba: $("#intention_best_proba").val(),
+            GPT_impl: $("#use_openai_gpt").is(":checked") ? "OpenAIGPT" : "GPT4All",
+            TTS_impl: $("#use_openai_tts").is(":checked") ? "OpenAITTS" : "OSTTS",
+            STT_impl: $("#use_openai_stt").is(":checked") ? "OpenAISTT" : "VoskSTT",
+            Audio_impl: "BuiltinAudio"
         }),
         headers: {
             "Content-type": "application/json; charset=UTF-8"
@@ -108,8 +113,10 @@ function run_ai() {
         window.location.assign("/run-ai")
     })
 }
+let global_loaded = 0
 function fillSelect(url_to_fetch, select_id) {
     fetch(url_to_fetch).then((response) => response.json()).then((data) => {
+        global_loaded += 1
         const select = document.getElementById(select_id)
         data.forEach(opt => {
             let option = document.createElement('option')
@@ -119,8 +126,15 @@ function fillSelect(url_to_fetch, select_id) {
         })
     })
 }
-function fillGPTSelect() {
-    fetch("/gpt-models").then(response => response.json()).then(data => {
+fetch("/translations").then(response => response.json()).then(data => {
+    translations = data
+    global_loaded += 1
+})
+fillSelect("/languages", "language")
+fillSelect("/voice-keys", "assistant_voice_key")
+fillSelect("/vosk-models", "vosk_model")
+fetch("/gpt-models").then(response => response.json()).then(data => {
+        global_loaded += 1
         const select = document.getElementById("gpt_model")
         data.forEach(model => {
             let option = document.createElement('option')
@@ -132,25 +146,39 @@ function fillGPTSelect() {
             select.appendChild(option)
         })
     })
-}
-fetch("/translations").then(response => response.json()).then(data => {
-    translations = data
-})
-fillSelect("/languages", "language")
-fillSelect("/voice-keys", "assistant_voice_key")
-fillSelect("/vosk-models", "vosk_model")
-fillGPTSelect()
 fetch("/avaliable-modules").then(response => response.json()).then(data => {
+    global_loaded += 1
     const fieldset = $("#on-off-modules")
+    let modules = []
     for (const [key, value] of Object.entries(data)) {
+        const name = value[0]
+        const version = value[1]
+        const remove_button = key === "builtin" ? "" : `<button id="remove_module_${key}" name="remove_module_${key}">${translations["Remove"] === undefined ? "Remove" : translations["Remove"]}</button>`
         let field = $(`<label for="module_${key}">
                             <input type="checkbox" id="module_${key}" name="module_${key}" role="switch">
-                           ${translations[value] === undefined ? value : translations[value]}
+                            ${translations[name] === undefined ? name : translations[name]} v${version}
+                            ${remove_button}
                         </label>`)
         fieldset.append(field.get())
+        modules.push([key, version])
     }
+    fetch("http://localhost/api/get-packed-list").then(response => response.json()).then(data => {
+        global_loaded += 1
+        const fieldset = $("#new-modules")
+        data.forEach(entry => {
+            if (modules.includes([entry.module, entry.version]))
+                return
+            const install_button = `<button id="install_module_${entry.module}" name="install_module_${entry.module}">${translations["Install"] === undefined ? "Install" : translations["Install"]}</button>`
+            let field = $(`<label for="install_module_${entry.module}">
+                            ${install_button}
+                            ${translations[entry.name] === undefined ? entry.name : translations[entry.name]} v${entry.version}
+                        </label>`)
+            fieldset.append(field.get())
+        })
+    })
 })
 fetch("/previous-config").then((response) => response.json()).then((data) => {
+    global_loaded += 1
     for (const [key, value] of Object.entries(data)) {
         element = document.getElementById(key)
         if (element === null)
@@ -170,4 +198,16 @@ fetch("/previous-config").then((response) => response.json()).then((data) => {
             continue
         element.checked = value
     }
+    
 })
+function turn_on_buttons() {
+    if (global_loaded >= 8) {
+        $("#button_send_config").prop('disabled', false)
+        $("#button_ask_reset_ai").prop('disabled', false)
+        $("#button_run_ai").prop('disabled', false)    
+    }
+    else {
+        setTimeout(turn_on_buttons, 1000)
+    }
+}
+turn_on_buttons()

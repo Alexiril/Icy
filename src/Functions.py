@@ -1,5 +1,6 @@
 """"""
 
+from collections.abc import Callable, Iterable
 from importlib import import_module
 from inspect import isclass
 from json import JSONDecodeError, dumps, loads
@@ -8,6 +9,8 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 
+from openai import Stream
+from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from termcolor import colored
 
 from src.Interfaces import BasicInterface, ModuleInterface
@@ -78,7 +81,25 @@ def load_module(name: str, config: dict[str, Any]) -> ModuleInterface | None:
             )
         )
         return
-    result = getattr(actual_module, "Module")(config)
+    translations = {}
+    if (langs := Path(".") / "modules" / name / "languages").is_dir():
+        for lang in listdir(langs):
+            if lang[-5:] == ".json":
+                lang_code = lang[:-5]
+                try:
+                    with open(langs / lang, "rt", encoding="utf-8") as inp:
+                        lang_dict = loads(inp.read())
+                    translations[lang_code] = lang_dict
+                except Exception as e:
+                    print(
+                        colored(
+                            f"Loading module language '{module_name}' "
+                            f"({module_version}) : '{lang_code}' "
+                            f"failure: {e}.",
+                            "light_red",
+                        )
+                    )
+    result = getattr(actual_module, "Module")(config, translations)
     return result
 
 
@@ -95,7 +116,7 @@ def load_modules(accepted_modules: set[str]) -> list[ModuleInterface]:
 
 def load_interface[T: BasicInterface](interface: type[T], state: State) -> T:
     intr_name: str = interface.__name__.replace("Interface", "")
-    impl_name: str = state["settings"].get(f"{intr_name}-impl", "")
+    impl_name: str = state["settings"].get(f"{intr_name}_impl", "")
     if impl_name == "":
         raise RuntimeError(
             f"The implementation for '{interface.__name__}' is not set in settings."
@@ -114,6 +135,7 @@ def load_interface[T: BasicInterface](interface: type[T], state: State) -> T:
     result.before_start(state)
     return result
 
+
 def load_prev() -> dict[str, Any]:
     settings: dict[str, Any] = {}
     prev_data_file: Path = Path(".") / "prev.data"
@@ -121,6 +143,7 @@ def load_prev() -> dict[str, Any]:
         with open(prev_data_file, "rb") as file:
             settings = loads(file.read())
     return settings
+
 
 def save_prev(settings: dict[str, Any]) -> None:
     prev_data_file: Path = Path(".") / "prev.data"
@@ -142,3 +165,52 @@ def save_prev(settings: dict[str, Any]) -> None:
         with open(prev_data_file, "wb") as file:
             file.write(initial_file)
     return
+
+
+def stream_to_str(
+    state: State,
+    stream: str | Iterable[str] | Stream[ChatCompletionChunk],
+    chunk_callback: Callable[[str, bool, str], None] | None = None,
+) -> str:
+
+    if isinstance(stream, str):
+        return stream
+
+    punctuation = ".;!?:"
+    result_string = ""
+
+    def punctuation_rfind(s: str) -> int:
+        index = len(s) - 1
+        for symbol in s[::-1]:
+            if symbol in punctuation:
+                return index
+            index -= 1
+        return -1
+
+    def handle_part(text: str, final: bool = False) -> None:
+        nonlocal result_string
+        result_string += text
+        if text not in punctuation or final:
+            if chunk_callback is not None:
+                chunk_callback(text, final, result_string)
+
+    sliding_window = ""
+    for part in stream:
+        if state["__force_stop_stream"]:
+            break
+        if isinstance(part, ChatCompletionChunk):
+            part = part.choices[0].delta.content
+            if part is None:
+                part = ""
+        sliding_window += part
+        if (end_pos := punctuation_rfind(sliding_window)) != -1:
+            sliding_window = sliding_window.removeprefix(
+                (new_part := sliding_window[: end_pos + 1])
+            )
+            handle_part(new_part)
+    if isinstance(stream, Stream):
+        stream.close()
+    if sliding_window != "":
+        handle_part(sliding_window)
+    handle_part("", True)
+    return result_string

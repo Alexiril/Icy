@@ -1,3 +1,17 @@
 {
-    
+    "builtin-quit-action-keys": [
+        "quit",
+        "force stop"
+    ],
+    "builtin-quit-action-response": "Stopping...",
+    "builtin-hey-action-keys": [
+        "hey",
+        "listen"
+    ],
+    "builtin-hey-action-response": [
+        "I'm here!",
+        "Yeah?",
+        "Listening.",
+        "Here to help."
+    ]
 }

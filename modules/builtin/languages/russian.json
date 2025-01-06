@@ -1,0 +1,17 @@
+{
+    "builtin-quit-action-keys": [
+        "выход",
+        "остановись"
+    ],
+    "builtin-quit-action-response": "Останавливаюсь...",
+    "builtin-hey-action-keys": [
+        "эй",
+        "слушай"
+    ],
+    "builtin-hey-action-response": [
+        "Я здесь!",
+        "Да?",
+        "Слушаю.",
+        "Чем помочь?"
+    ]
+}

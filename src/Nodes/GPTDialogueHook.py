@@ -25,6 +25,7 @@ class GPTDialogueHook(Node):
         if "gpt-answered" not in state:
             return
         if state["gpt-answered"]:
+            state["gpt-answered"] = False
             if not isinstance(response := state["response"], str):
                 self.log_error(
                     RuntimeWarning(

@@ -10,8 +10,13 @@ from src.Interfaces.ActionInterface import ActionInterface
 class ModuleInterface(metaclass=ABCMeta):
     """"""
 
+    translations: dict[str, dict[str, Any]] = {}
+
     @abstractmethod
-    def __init__(self, module_info: dict[str, Any]) -> None: ...
+    def __init__(
+        self, module_info: dict[str, Any], translations: dict[str, dict[str, Any]]
+    ) -> None:
+        self.translations = translations
 
     @abstractmethod
     def get_actions(self, state: State) -> list[ActionInterface]: ...

@@ -1,8 +1,9 @@
 from http.server import BaseHTTPRequestHandler
-from json import JSONDecodeError, JSONEncoder, loads
+from json import JSONDecodeError, JSONEncoder, dumps, loads
 from os import environ, listdir, remove
 from os.path import exists, isdir, isfile, join
 from pathlib import Path
+from queue import Queue
 from re import search
 from socket import socket
 from socketserver import BaseServer
@@ -54,9 +55,12 @@ class Handler(BaseHTTPRequestHandler):
     def do_HEAD(self) -> None:
         if self.path == "/":
             env: Environment = Environment(
-                loader=FileSystemLoader("web"), autoescape=select_autoescape()
+                loader=FileSystemLoader(
+                    (Path(".") / "src" / "Web" / "templates").as_posix()
+                ),
+                autoescape=select_autoescape(),
             )
-            template_file = "index.html"
+            template_file = "blank.html"
             if Handler.server_phase == "Configuration":
                 template_file = "config.html"
             elif Handler.server_phase == "Starting":
@@ -72,12 +76,16 @@ class Handler(BaseHTTPRequestHandler):
             ).encode()
             self.send_headers()
         elif (match := search(r"/shared/(.+)", self.path)) is not None:
-            with open(Path(".") / "web" / "shared" / f"{match.group(1)}", "rb") as file:
+            with open(
+                Path(".") / "src" / "Web" / "shared" / f"{match.group(1)}", "rb"
+            ) as file:
                 self.output = file.read()
             self.send_headers()
         elif self.path == "/favicon.svg":
             try:
-                with open("web/favicon.svg", "rb") as file:
+                with open(
+                    Path(".") / "src" / "Web" / "shared" / "favicon.svg", "rb"
+                ) as file:
                     self.output = file.read()
             except Exception:
                 pass
@@ -129,22 +137,17 @@ class Handler(BaseHTTPRequestHandler):
             self.send_headers()
         elif self.path == "/avaliable-modules":
 
-            def get_name(module_path: str) -> str:
+            def get_name_ver(module_path: str) -> list[str]:
                 with open(module_path, "rt") as file:
                     app_config: dict[str, Any] = loads(file.read())
                     app_name: str = app_config.get(
                         "name", Handler.state["translations"][""]["Unnamed application"]
                     )
-                    if Handler.state["translations"][""]["lang_name"] in app_config.get(
-                        "translations", {}
-                    ):
-                        app_name = app_config["translations"][
-                            Handler.state["translations"][""]["lang_name"]
-                        ].get(app_name, app_name)
-                    return app_name
+                    app_version = app_config.get("version", "1.0")
+                    return [app_name, app_version]
 
-            modules: dict[str, str] = {
-                folder_name: get_name(join("modules", folder_name, "module.json"))
+            modules: dict[str, list[str]] = {
+                folder_name: get_name_ver(join("modules", folder_name, "module.json"))
                 for folder_name in listdir("modules")
                 if isdir(join("modules", folder_name))
                 and exists(join("modules", folder_name, "module.json"))
@@ -217,6 +220,11 @@ class Handler(BaseHTTPRequestHandler):
             self.send_redirect("/")
         elif self.path == "/phase":
             self.output = self.server_phase.encode()
+            self.send_headers()
+        elif self.path == "/messages":
+            self.output = dumps(
+                list(self.state.get("full-dialogue-history", Queue()).queue)
+            ).encode()
             self.send_headers()
         else:
             self.send_headers(404)

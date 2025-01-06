@@ -82,16 +82,23 @@ class Node(metaclass=ABCMeta):
 
     def _check_requirements(self, state: State) -> bool:
         dummy = object()
-        for each_req in self.requires:
-            if (value := state.get(each_req[0], dummy)) is dummy:
-                return False
-            _type = each_req[1]
-            if get_origin(_type) is Union:
-                _type = get_args(_type)
-            if get_origin(_type) is not None:
-                _type = get_origin(_type)
-            if not isinstance(value, _type):  # type: ignore
-                return False
+        try:
+            for each_req in self.requires:
+                if (value := state.get(each_req[0], dummy)) is dummy:
+                    return False
+                _type = each_req[1]
+                if get_origin(_type) is Union:
+                    _type = get_args(_type)
+                if get_origin(_type) is not None:
+                    _type = get_origin(_type)
+                if not isinstance(value, _type):  # type: ignore
+                    return False
+        except Exception as e:
+            print(
+                colored(
+                    f"Exception while checking state requirements: {e}.", "light_red"
+                )
+            )
         return True
 
     def run(self, state: State) -> State:

@@ -18,4 +18,6 @@ class AssistantStart(Node):
     def __call__(self, state: State) -> None:
         state["response"] = state["translations"][""]["I'm ready!"]
         state["assistant-dialogue"] = Queue()
+        state["full-dialogue-history"] = Queue()
+        state["gpt-answered"] = False
         return

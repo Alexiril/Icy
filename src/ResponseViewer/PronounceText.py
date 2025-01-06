@@ -14,11 +14,13 @@ class PronounceText(ResponseViewerInterface):
     audio: AudioInterface | None
     _text: str
     _text_hook: Callable[[], str]
+    _old_text: str
 
     def __init__(self) -> None:
         self.state = None
         self.audio = None
         self._text = ""
+        self._old_text = ""
         return
 
     def generate_speech(self, text: str) -> Wave_read:
@@ -55,13 +57,17 @@ class PronounceText(ResponseViewerInterface):
         return
 
     def hook(self, get_text: Callable[[], str]) -> None:
+        self._old_text = ""
         self._text_hook = get_text
         self.review()
         return
 
     def review(self) -> None:
         whole_text = self._text_hook()
-        new_text = whole_text.removeprefix(self._text)
+        new_text = whole_text.removeprefix(self._old_text)
+        if len(new_text) < 1:
+            return
+        self._old_text = whole_text
         self.view(new_text)
         return
 
@@ -72,7 +78,7 @@ class PronounceText(ResponseViewerInterface):
                 "Audio interface is not set correctly in the application state"
             )
         self.audio = audio
-        self.audio.set_forse_stop_handler("__force_stop_response")
+        self.audio.set_forse_stop_handler("__force_stop_stream")
         return
 
     def finished(self) -> bool:
